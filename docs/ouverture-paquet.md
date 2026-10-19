@@ -211,7 +211,74 @@ C'est un écran à part entière : on le traitera quand on fera la vraie ouvertu
 
 ---
 
-## 11. Critères d'acceptation (comment on saura que c'est bon)
+## 11. Comment gagner des WikiCrédits (proposition)
+
+Décision acquise : les WikiCrédits **peuvent s'acheter** avec de l'argent réel. Ils doivent donc
+aussi pouvoir se gagner en jouant, sinon le jeu devient « payer pour avancer » et perd son public.
+
+Les sources ci-dessous sont classées en trois familles. Les montants sont **indicatifs** : ils
+servent à discuter, pas à figer. Repère : un paquet coûte 900 WikiCrédits.
+
+### A. Récompenser le retour (le plus rentable pour la rétention)
+
+| Source | Principe | Montant indicatif | Risque |
+|---|---|---|---|
+| **Récompense quotidienne** | Premier passage de la journée | 100 – 150 | Aucun |
+| **Série de jours** | 7 jours d'affilée → bonus croissant, 7ᵉ jour plus gros | jusqu'à 600 le 7ᵉ jour | Décourager après une rupture : prévoir un « gel » d'un jour |
+| **Quête hebdomadaire** | 3 objectifs simples par semaine (« ouvrir 5 paquets », « compléter 2 fiches d'une série ») | 3 × 250 | Faible |
+
+### B. Récompenser le jeu (le cœur du produit)
+
+| Source | Principe | Montant indicatif | Risque |
+|---|---|---|---|
+| **Série complétée** | Bonus à la dernière fiche d'une série | ~300 par fiche de la série | Aucun, et cela pousse exactement la boucle voulue |
+| **Première découverte** | Petite prime la première fois qu'une fiche entre en collection | 20 – 50 | Aucun |
+| **Duel gagné** | Le bonus existant, à équilibrer | 120 gagné / 30 perdu | Collusion entre joueurs : plafonner par jour |
+| **Doublons convertis** | Une carte déjà possédée se transforme en crédits | ~25 % de la valeur de la fiche | C'est **aussi** la réponse à la question des doublons (§8.2) |
+
+### C. Récompenser la contribution (la plus originale, et la plus lente à construire)
+
+| Source | Principe | Montant indicatif | Risque |
+|---|---|---|---|
+| **Proposer une fiche** | Un sujet proposé et validé devient une carte | 500 – 1 000 | Modération indispensable, sinon pollution |
+| **Signaler une erreur** | Correction acceptée sur une fiche | 50 – 150 | Idem, et il faut une équipe pour valider |
+| **Parrainage** | Un filleul actif rapporte une prime | 300, une seule fois | Le site de référence l'interdit déjà : multi-comptes. À réserver, avec vérification |
+
+### Ma recommandation pour la première version
+
+**Quatre sources seulement**, celles qui sont simples et qui poussent la boucle collection :
+récompense quotidienne, série complétée, première découverte, doublons convertis.
+
+On garde les duels (déjà là) en plafonnant les gains quotidiens pour éviter les parties truquées
+entre deux comptes. La contribution et le parrainage attendent : ils demandent de la modération
+et de la lutte anti-fraude, c'est un métier à part.
+
+### Les deux pièges à éviter
+
+1. **L'inflation.** Si les crédits pleuvent, les paquets ne valent plus rien et l'achat perd son
+   sens. Il faut un **plafond de gains par jour** et une **source qui se tarit** : les séries se
+   terminent, donc le bonus « série complétée » s'épuise naturellement. C'est le bon type de
+   récompense.
+2. **Les robots.** Toute récompense automatique et répétable sera automatisée. D'où les plafonds,
+   et d'où l'intérêt de récompenser des choses **finies** (une série, une découverte) plutôt que
+   des choses **répétables** (un clic, une ouverture).
+
+### Ce que cela change au juridique
+
+Acheter des WikiCrédits pour ouvrir des paquets au contenu aléatoire : c'est **exactement** la
+configuration la plus surveillée. Le fait qu'un paquet gratuit existe toutes les 10 minutes
+atténue beaucoup les choses — on peut jouer sans jamais payer — mais ne suffit pas à écarter le
+sujet. Trois précautions qui coûtent peu et qui se voient :
+
+- **même contenu, mêmes taux** pour le paquet gratuit et le payant (déjà acté, §10) ;
+- **taux publiés** et statistiques globales visibles (§4) ;
+- **aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
+
+Ces précautions ne remplacent pas l'avis d'un juriste, elles le rendent plus facile à obtenir.
+
+---
+
+## 12. Critères d'acceptation (comment on saura que c'est bon)
 
 1. Couper le réseau juste après le clic : au retour, aucune ouverture perdue, aucun double débit.
 2. Cliquer dix fois très vite : une seule ouverture, un seul débit.
