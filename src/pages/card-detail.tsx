@@ -147,7 +147,7 @@ export function CardDetailPage() {
           )}
           {signedIn && !canAfford && !owned && (
             <p className="text-muted-foreground text-center text-xs">
-              Il vous manque {formatNumber(card.value - profile.credits)} crédits.
+              Il vous manque {formatNumber(card.value - profile.credits)} WikiCrédits.
             </p>
           )}
         </div>

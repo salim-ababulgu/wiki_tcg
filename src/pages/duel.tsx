@@ -211,7 +211,7 @@ export function DuelPage() {
                 </p>
                 <p>Chaque manche compare Savoir, Influence et Singularité.</p>
                 <p>Deux attributs dominés = manche gagnée.</p>
-                <p>Deux manches gagnées = duel remporté et crédits à la clé.</p>
+                <p>Deux manches gagnées = duel remporté et WikiCrédits à la clé.</p>
               </CardContent>
             </Card>
           </aside>
@@ -306,7 +306,7 @@ export function DuelPage() {
                     {victory ? "Belle démonstration !" : "L'adversaire a mieux joué"}
                   </p>
                   <p className="text-muted-foreground text-sm">
-                    Récompense : {formatNumber(reward)} crédits · {victory ? "+140" : "+30"} XP
+                    Récompense : {formatNumber(reward)} WikiCrédits · {victory ? "+140" : "+30"} XP
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -332,7 +332,7 @@ export function DuelPage() {
 
           <div className="text-muted-foreground flex items-center gap-2 text-xs">
             <Coins className="size-3.5 text-[var(--gold)]" />
-            Les crédits gagnés en duel servent à ouvrir d'autres paquets.
+            Les WikiCrédits gagnés en duel servent à ouvrir d'autres paquets.
           </div>
         </div>
       )}

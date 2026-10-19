@@ -49,7 +49,7 @@ export function CollectionPage() {
       <PageHeader
         eyebrow="Ma collection"
         title="Votre encyclopédie"
-        description={`${ownedCards.length} fiches distinctes sur ${CARDS.length}, ${collection.length} cartes au total. Valeur estimée de la collection : ${formatNumber(totalValue)} crédits.`}
+        description={`${ownedCards.length} fiches distinctes sur ${CARDS.length}, ${collection.length} cartes au total. Valeur estimée de la collection : ${formatNumber(totalValue)} WikiCrédits.`}
         actions={
           <Button asChild>
             <Link to="/paquets">
