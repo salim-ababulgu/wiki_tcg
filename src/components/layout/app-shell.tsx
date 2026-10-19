@@ -213,6 +213,13 @@ export function AppShell() {
           <SearchBox />
 
           <div className="ml-auto flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className="hidden gap-1 border-[oklch(0.82_0.15_85/0.35)] text-[10px] text-[var(--gold)] md:flex"
+              title="Prototype : la collection est simulée dans votre navigateur."
+            >
+              Démo — rien n'est enregistré
+            </Badge>
             <div className="flex items-center gap-1.5 rounded-full border px-3 py-1.5">
               <Wallet className="size-3.5 text-[var(--gold)]" />
               <span className="text-sm font-semibold tabular-nums">

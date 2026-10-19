@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { ArrowRight, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useGame } from "@/lib/game-store";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -14,6 +15,8 @@ const LINKS = [
  * seulement de quoi comprendre le produit et créer un compte.
  */
 export function PublicShell() {
+  const { signedIn } = useGame();
+
   return (
     <div className="min-h-svh overflow-x-hidden">
       <div className="pointer-events-none fixed inset-0 -z-10">
@@ -60,14 +63,24 @@ export function PublicShell() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/connexion">Se connecter</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/inscription">
-                Créer un compte <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
+            {signedIn ? (
+              <Button asChild size="sm">
+                <Link to="/collection">
+                  Mon espace <ArrowRight className="size-3.5" />
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/connexion">Se connecter</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link to="/inscription">
+                    Créer un compte <ArrowRight className="size-3.5" />
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

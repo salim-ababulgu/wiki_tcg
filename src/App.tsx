@@ -2,6 +2,7 @@ import * as React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
 import { PublicShell } from "@/components/layout/public-shell";
+import { RequireAuth } from "@/components/require-auth";
 import { GameProvider } from "@/lib/game-store";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,12 +46,14 @@ export function App() {
             <Route path="/inscription" element={<AuthPage mode="signup" />} />
 
             {/* Privé : accessible une fois connecté. */}
-            <Route element={<AppShell />}>
-              <Route path="/collection" element={<CollectionPage />} />
-              <Route path="/paquets" element={<PacksPage />} />
-              <Route path="/duels" element={<DuelPage />} />
-              <Route path="/classement" element={<LeaderboardPage />} />
-              <Route path="/profil" element={<ProfilePage />} />
+            <Route element={<RequireAuth />}>
+              <Route element={<AppShell />}>
+                <Route path="/collection" element={<CollectionPage />} />
+                <Route path="/paquets" element={<PacksPage />} />
+                <Route path="/duels" element={<DuelPage />} />
+                <Route path="/classement" element={<LeaderboardPage />} />
+                <Route path="/profil" element={<ProfilePage />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>

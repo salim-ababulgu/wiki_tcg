@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Check, Filter, LayoutGrid, Rows3, Search, SlidersHorizontal, X } from "lucide-react";
 import { CardTile } from "@/components/card-tile";
 import { PageHeader } from "@/components/page-header";
@@ -34,7 +34,7 @@ const RARITY_ORDER = Object.fromEntries(RARITIES.map((rarity, index) => [rarity,
 
 export function ExplorePage() {
   const [params, setParams] = useSearchParams();
-  const { ownedIds } = useGame();
+  const { ownedIds, signedIn } = useGame();
   const [query, setQuery] = React.useState(params.get("q") ?? "");
   const [dense, setDense] = React.useState(false);
 
@@ -64,7 +64,7 @@ export function ExplorePage() {
       if (selectedRarities.length > 0 && !selectedRarities.includes(card.rarity)) return false;
       if (category !== "toutes" && card.category !== category) return false;
       if (setFilter !== "toutes" && card.set !== setFilter) return false;
-      if (ownedOnly && !ownedIds.has(card.id)) return false;
+      if (ownedOnly && (!signedIn || !ownedIds.has(card.id))) return false;
       if (!needle) return true;
       return [card.name, card.blurb, card.category, card.era, card.origin, ...card.tags]
         .join(" ")
@@ -213,16 +213,29 @@ export function ExplorePage() {
 
           <Separator />
 
-          <div className="flex items-center justify-between gap-2">
-            <Label htmlFor="owned-only" className="text-sm font-normal">
-              Seulement mes cartes
-            </Label>
-            <Switch
-              id="owned-only"
-              checked={ownedOnly}
-              onCheckedChange={(checked) => update("possedees", checked ? "1" : null)}
-            />
-          </div>
+          {signedIn && (
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="owned-only" className="text-sm font-normal">
+                Seulement mes cartes
+              </Label>
+              <Switch
+                id="owned-only"
+                checked={ownedOnly}
+                onCheckedChange={(checked) => update("possedees", checked ? "1" : null)}
+              />
+            </div>
+          )}
+
+          {!signedIn && (
+            <div className="rounded-lg border border-dashed p-3">
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                Vous consultez le catalogue en visiteur.
+              </p>
+              <Button asChild size="sm" variant="outline" className="mt-2 w-full">
+                <Link to="/inscription">Créer un compte pour collectionner</Link>
+              </Button>
+            </div>
+          )}
 
           {activeFilters > 0 && (
             <Button
@@ -305,7 +318,7 @@ export function ExplorePage() {
                   key={card.id}
                   card={card}
                   compact={dense}
-                  owned={ownedIds.has(card.id)}
+                  owned={signedIn && ownedIds.has(card.id)}
                 />
               ))}
             </div>

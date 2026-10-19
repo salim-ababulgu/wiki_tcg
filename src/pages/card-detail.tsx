@@ -30,7 +30,7 @@ import { NotFoundPage } from "@/pages/not-found";
 export function CardDetailPage() {
   const { slug = "" } = useParams();
   const card = CARD_BY_SLUG.get(slug);
-  const { profile, owns, buyCard, wishlist, toggleWishlist, collection } = useGame();
+  const { profile, owns, buyCard, wishlist, toggleWishlist, collection, signedIn } = useGame();
 
   if (!card) return <NotFoundPage />;
 
@@ -107,32 +107,45 @@ export function CardDetailPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="default"
-              onClick={() => {
-                if (owned) {
-                  toast.info("Vous possédez déjà cette fiche.");
-                  return;
-                }
-                const ok = buyCard(card);
-                toast[ok ? "success" : "error"](
-                  ok
-                    ? `${card.name} ajoutée à votre collection`
-                    : "Crédits insuffisants — ouvrez un paquet ou gagnez un duel",
-                );
-              }}
-              disabled={owned && copies > 0}
-            >
-              <Coins className="size-4" />
-              {owned ? "Déjà possédée" : `Acheter · ${formatNumber(card.value)}`}
-            </Button>
-            <Button variant="outline" onClick={() => toggleWishlist(card.id)}>
-              {wanted ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
-              {wanted ? "Suivie" : "Suivre"}
-            </Button>
-          </div>
-          {!canAfford && !owned && (
+          {signedIn ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="default"
+                onClick={() => {
+                  if (owned) {
+                    toast.info("Vous possédez déjà cette fiche.");
+                    return;
+                  }
+                  const ok = buyCard(card);
+                  toast[ok ? "success" : "error"](
+                    ok
+                      ? `${card.name} ajoutée à votre collection`
+                      : "Crédits insuffisants — ouvrez un paquet ou gagnez un duel",
+                  );
+                }}
+                disabled={owned && copies > 0}
+              >
+                <Coins className="size-4" />
+                {owned ? "Déjà possédée" : `Acheter · ${formatNumber(card.value)}`}
+              </Button>
+              <Button variant="outline" onClick={() => toggleWishlist(card.id)}>
+                {wanted ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
+                {wanted ? "Suivie" : "Suivre"}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/inscription">
+                  <Coins className="size-4" /> Créer un compte pour la collectionner
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/connexion">J'ai déjà un compte</Link>
+              </Button>
+            </div>
+          )}
+          {signedIn && !canAfford && !owned && (
             <p className="text-muted-foreground text-center text-xs">
               Il vous manque {formatNumber(card.value - profile.credits)} crédits.
             </p>

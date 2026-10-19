@@ -1,11 +1,12 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Award,
   BookOpen,
   CalendarDays,
   Coins,
   Flame,
+  LogOut,
   RotateCcw,
   Shield,
   Sparkles,
@@ -39,7 +40,8 @@ const BADGES = [
 ];
 
 export function ProfilePage() {
-  const { profile, collection, toggleTheme, theme, resetProgress } = useGame();
+  const { profile, collection, toggleTheme, theme, resetProgress, signOut } = useGame();
+  const navigate = useNavigate();
   const [displayName, setDisplayName] = React.useState(profile.displayName);
 
   const distinct = new Set(collection.map((owned) => owned.cardId)).size;
@@ -254,6 +256,25 @@ export function ProfilePage() {
                     }}
                   >
                     <Trash2 className="size-3.5" /> Réinitialiser
+                  </Button>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <p className="text-sm">Quitter la session</p>
+                  <p className="text-muted-foreground text-[11px]">
+                    Vous revenez à l'accueil en visiteur. Votre collection reste dans ce navigateur
+                    et revient à la prochaine connexion.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      signOut();
+                      toast.success("Vous êtes déconnecté.");
+                      navigate("/", { replace: true });
+                    }}
+                  >
+                    <LogOut className="size-3.5" /> Se déconnecter
                   </Button>
                 </div>
                 <Separator />

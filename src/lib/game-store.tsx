@@ -9,6 +9,8 @@ export const PACK_PRICE = 900;
 export const PACK_SIZE = 5;
 
 type GameState = {
+  /** Y a-t-il quelqu'un de connecté ? Simulé : aucun mot de passe, aucun serveur. */
+  signedIn: boolean;
   profile: Profile;
   collection: OwnedCard[];
   wishlist: string[];
@@ -22,8 +24,8 @@ type GameContextValue = GameState & {
   addCard: (card: Card, edition?: OwnedCard["edition"]) => void;
   buyCard: (card: Card) => boolean;
   toggleWishlist: (cardId: string) => void;
-  login: (email: string, displayName?: string) => void;
-  logout: () => void;
+  signIn: (email: string, displayName?: string) => void;
+  signOut: () => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
   resetProgress: () => void;
@@ -31,7 +33,7 @@ type GameContextValue = GameState & {
 
 const GameContext = React.createContext<GameContextValue | null>(null);
 
-function defaultProfile(email: string, displayName: string): Profile {
+function makeProfile(email: string, displayName: string): Profile {
   return {
     handle: displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 20) || "collectionneur",
     displayName,
@@ -45,6 +47,24 @@ function defaultProfile(email: string, displayName: string): Profile {
     duelLosses: 11,
     packsOpened: 14,
     guild: "Les Archivistes",
+  };
+}
+
+/** Profil d'un visiteur non connecté : rien à afficher, rien à collectionner. */
+function guestProfile(): Profile {
+  return {
+    handle: "visiteur",
+    displayName: "Visiteur",
+    email: "",
+    joinedAt: new Date().toISOString(),
+    bio: "",
+    credits: 0,
+    xp: 0,
+    level: 1,
+    duelWins: 0,
+    duelLosses: 0,
+    packsOpened: 0,
+    guild: "—",
   };
 }
 
@@ -73,11 +93,14 @@ function seedCollection(): OwnedCard[] {
   }));
 }
 
+const SEED_WISHLIST = ["card_grande-vague", "card_trou-noir"];
+
 function createInitialState(): GameState {
   return {
-    profile: defaultProfile("salim@wikitcg.app", "Salim"),
-    collection: seedCollection(),
-    wishlist: ["card_grande-vague", "card_trou-noir"],
+    signedIn: false,
+    profile: guestProfile(),
+    collection: [],
+    wishlist: [],
     ready: false,
   };
 }
@@ -155,7 +178,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         obtainedAt: new Date().toISOString(),
         edition: card.rarity === "legendaire" || card.rarity === "ultra-rare" ? "prestige" : "standard",
       }));
-      const xpGain = drawn.reduce((sum, card) => sum + Math.round(RARITY_MAP[card.rarity].baseValue / 20), 0);
+      const xpGain = drawn.reduce(
+        (sum, card) => sum + Math.round(RARITY_MAP[card.rarity].baseValue / 20),
+        0,
+      );
       return {
         ...prev,
         collection: [...prev.collection, ...owned],
@@ -187,7 +213,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           },
         ],
         profile: { ...prev.profile, credits: prev.profile.credits - card.value },
-      } as GameState;
+      };
     });
     return success;
   }, []);
@@ -201,12 +227,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const login = React.useCallback((email: string, displayName = "Collectionneur") => {
-    setState((prev) => ({ ...prev, profile: { ...prev.profile, email, displayName } }));
+  /**
+   * Connexion simulée : on ne vérifie aucun mot de passe et rien ne quitte le
+   * navigateur. Sert uniquement à distinguer « visiteur » de « connecté ».
+   */
+  const signIn = React.useCallback((email: string, displayName = "Collectionneur") => {
+    setState((prev) => ({
+      ...prev,
+      signedIn: true,
+      profile: { ...makeProfile(email, displayName), xp: prev.profile.xp, credits: 4200 },
+      collection: prev.collection.length > 0 ? prev.collection : seedCollection(),
+      wishlist: prev.wishlist.length > 0 ? prev.wishlist : SEED_WISHLIST,
+    }));
   }, []);
 
-  const logout = React.useCallback(() => {
-    setState(createInitialState());
+  const signOut = React.useCallback(() => {
+    setState((prev) => ({ ...prev, signedIn: false }));
   }, []);
 
   const resetProgress = React.useCallback(() => {
@@ -217,13 +253,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const value: GameContextValue = {
     ...state,
     ownedIds,
-    owns: (cardId) => ownedIds.has(cardId),
+    owns: (cardId) => state.signedIn && ownedIds.has(cardId),
     openPack,
     addCard,
     buyCard,
     toggleWishlist,
-    login,
-    logout,
+    signIn,
+    signOut,
     theme,
     toggleTheme,
     resetProgress,

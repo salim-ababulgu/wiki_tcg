@@ -118,6 +118,10 @@ export function PacksPage() {
                     {formatNumber(PACK_PRICE)} crédits.
                   </p>
                 </div>
+                <p className="mx-auto max-w-md rounded-lg border border-dashed px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+                  Démo : le tirage a lieu dans votre navigateur et la collection n'est pas
+                  enregistrée sur un serveur. Les crédits sont décoratifs.
+                </p>
                 <Button size="lg" variant="gold" onClick={handleOpen} disabled={busy}>
                   <PackageOpen className="size-4" /> Ouvrir pour {formatNumber(PACK_PRICE)} crédits
                 </Button>

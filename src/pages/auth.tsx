@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, BookOpen, Check, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -67,13 +67,16 @@ function Showcase() {
 export function AuthPage({ mode }: { mode: "login" | "signup" }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, profile, collection } = useGame();
+  const { signIn, signedIn } = useGame();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [pseudo, setPseudo] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
 
   const from = (location.state as { from?: string } | null)?.from ?? "/collection";
+
+  // Déjà connecté : inutile de repasser par le formulaire.
+  if (signedIn) return <Navigate to={from} replace />;
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -86,7 +89,7 @@ export function AuthPage({ mode }: { mode: "login" | "signup" }) {
       return;
     }
     setError(null);
-    login(email, mode === "signup" ? pseudo || "Collectionneur" : "Salim");
+    signIn(email, mode === "signup" ? pseudo || "Collectionneur" : "Salim");
     toast.success(mode === "signup" ? "Compte créé — bonne collection !" : "Bon retour parmi nous.");
     navigate(from, { replace: true });
   };
@@ -162,7 +165,7 @@ export function AuthPage({ mode }: { mode: "login" | "signup" }) {
                 variant="outline"
                 className="w-full"
                 onClick={() => {
-                  login("demo@wikitcg.app", "Salim");
+                  signIn("demo@wikitcg.app", "Salim");
                   toast.success("Session de démonstration ouverte.");
                   navigate("/collection", { replace: true });
                 }}
@@ -194,7 +197,8 @@ export function AuthPage({ mode }: { mode: "login" | "signup" }) {
         </Card>
 
         <p className="text-muted-foreground text-center text-[11px]">
-          {profile.displayName} · {collection.length} cartes déjà dans la collection locale
+          Démonstration : aucune donnée n'est envoyée à un serveur, aucun mot de passe n'est
+          enregistré.
         </p>
       </div>
     </div>
