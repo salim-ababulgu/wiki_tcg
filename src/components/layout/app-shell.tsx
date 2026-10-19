@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  BookOpen,
   Compass,
   Flame,
   Home,
@@ -54,9 +53,13 @@ const NAV = [
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className="group flex items-center gap-2.5">
-      <span className="relative grid size-9 place-items-center rounded-lg bg-gradient-to-br from-[oklch(0.82_0.15_85)] to-[oklch(0.66_0.15_45)] shadow-[0_4px_14px_-4px_rgba(0,0,0,0.6)]">
-        <BookOpen className="size-4.5 text-[oklch(0.2_0.03_70)]" strokeWidth={2.2} />
-      </span>
+      <img
+        src="/logo_wikitcg.png"
+        alt=""
+        width={32}
+        height={32}
+        className="size-8 rounded-lg object-cover shadow-[0_4px_14px_-4px_rgba(0,0,0,0.6)]"
+      />
       {!compact && (
         <span className="flex flex-col leading-none">
           <span className="font-display text-[15px] font-bold tracking-tight">WikiTCG</span>

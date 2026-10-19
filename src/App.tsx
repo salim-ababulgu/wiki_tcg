@@ -1,6 +1,7 @@
 import * as React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
+import { PublicShell } from "@/components/layout/public-shell";
 import { GameProvider } from "@/lib/game-store";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,19 +32,25 @@ export function App() {
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-            <Route path="/connexion" element={<AuthPage mode="login" />} />
-            <Route path="/inscription" element={<AuthPage mode="signup" />} />
-            <Route element={<AppShell />}>
+            {/* Public : on peut regarder sans compte. */}
+            <Route element={<PublicShell />}>
               <Route index element={<HomePage />} />
               <Route path="/explorer" element={<ExplorePage />} />
               <Route path="/carte/:slug" element={<CardDetailPage />} />
+              <Route path="/regles" element={<RulesPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+
+            <Route path="/connexion" element={<AuthPage mode="login" />} />
+            <Route path="/inscription" element={<AuthPage mode="signup" />} />
+
+            {/* Privé : accessible une fois connecté. */}
+            <Route element={<AppShell />}>
               <Route path="/collection" element={<CollectionPage />} />
               <Route path="/paquets" element={<PacksPage />} />
               <Route path="/duels" element={<DuelPage />} />
               <Route path="/classement" element={<LeaderboardPage />} />
               <Route path="/profil" element={<ProfilePage />} />
-              <Route path="/regles" element={<RulesPage />} />
-              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

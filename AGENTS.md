@@ -46,6 +46,24 @@ Terminer le parcours visible, écran par écran, dans cet ordre :
 accueil → inscription → catalogue → collection → série complète.
 Le serveur vient après.
 
+## Accès aux écrans
+
+Publics, sans compte : accueil, inscription, connexion, règles, catalogue
+(`/explorer`) et fiches de cartes (`/carte/...`).
+
+Privés, réservés aux personnes connectées : collection, séries, paquets, duels,
+classement, profil. Un visiteur non connecté qui demande une adresse privée est
+renvoyé vers la connexion, puis ramené à la page qu'il voulait voir.
+
+Le catalogue et les fiches sont publics par décision produit : voir les cartes
+donne envie de s'inscrire, alors qu'un catalogue fermé décourage la découverte.
+
+## Adresses des pages
+
+En français, sans accents, en minuscules, avec des tirets si nécessaire
+(exemples : `/paquets`, `/collection`, `/series`, `/carte/grande-vague`).
+Pas d'adresses en anglais.
+
 ## Règle de la maquette (à respecter tant qu'il n'y a pas de serveur)
 
 - Le tirage des paquets est une **maquette assumée**.
