@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   Check,
   Coins,
-  Eye,
   Lock,
   Package,
   Sparkles,
@@ -160,7 +159,7 @@ export function SeriesDetailPage() {
                       </p>
                     ) : (
                       <p className="text-muted-foreground flex items-center gap-1 text-[10px]">
-                        <Eye className="size-2.5" /> à découvrir
+                        <Lock className="size-2.5" /> manquante
                       </p>
                     )}
                   </div>
