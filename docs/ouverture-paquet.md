@@ -154,7 +154,64 @@ forcément hors sujet.
 
 ---
 
-## 10. Critères d'acceptation (comment on saura que c'est bon)
+## 10. Modèle retenu : un paquet gratuit toutes les 10 minutes
+
+Décision produit (à confirmer) : **on ne paie jamais pour ouvrir un paquet**. Tout le monde peut
+jouer gratuitement ; l'attente est la seule limite. Ceux qui ne veulent pas attendre
+dépensent des **WikiCrédits**.
+
+### Le principe
+
+- Un **paquet gratuit** toutes les **10 minutes**, remis à zéro après chaque ouverture.
+- En attendant, il est possible d'ouvrir **tout de suite** en dépensant des WikiCrédits.
+- Le paquet gratuit et le paquet payant donnent **le même contenu** et les mêmes taux : on paie
+  le temps, pas la chance. C'est la règle la plus importante du modèle — dès qu'un paquet payant
+  est plus généreux, on retombe dans le tirage payant au contenu aléatoire, avec les questions
+  juridiques qui vont avec (§9).
+
+### Ce que cela implique techniquement
+
+- **Le compte à rebours vit sur le serveur**, pas dans le navigateur. L'heure du prochain paquet
+  gratuit est une donnée du compte, en base. Sinon il suffit de changer l'heure de son ordinateur,
+  ou de vider une variable locale, pour ouvrir à l'infini.
+- Le navigateur **affiche** un compte à rebours, mais il ne fait que rendre lisible une heure
+  décidée ailleurs : il ne décide jamais qu'un paquet est disponible.
+- La disponibilité est vérifiée **au moment de l'ouverture**, dans la même transaction que le
+  reste (règle 2 du §1). Le navigateur ne peut pas « prétendre » que le délai est écoulé.
+
+### Cas limites propres au minuteur
+
+| # | Situation | Comportement attendu |
+|---|---|---|
+| 13 | Le joueur change l'heure de son ordinateur | Aucun effet : seul le serveur fait foi |
+| 14 | Deux onglets ouverts, un seul paquet gratuit | Le premier l'obtient, le second reçoit « pas encore disponible » |
+| 15 | Le joueur revient après 3 heures | Un seul paquet gratuit, pas dix-neuf : pas d'accumulation (à confirmer) |
+| 16 | Ouverture payante pendant l'attente | Débit des WikiCrédits, et le minuteur du paquet gratuit n'est pas remis à zéro |
+| 17 | Le compte à rebours affiché est faux (onglet en veille) | L'écran se recale sur l'heure du serveur au retour |
+| 18 | Fuseau horaire, heure d'été | Sans objet : tout est exprimé en temps universel |
+
+### Ce que cela change à l'écran d'ouverture
+
+Aujourd'hui, un seul bouton : « Ouvrir pour 900 crédits ». Il en faudra deux états :
+
+- **Paquet gratuit disponible** → un bouton franc, sans prix.
+- **En attente** → le compte à rebours, et à côté un bouton « Ouvrir maintenant pour N WikiCrédits ».
+
+C'est un écran à part entière : on le traitera quand on fera la vraie ouverture.
+
+### Ce qui reste à trancher
+
+- Les **WikiCrédits** s'obtiennent-ils **uniquement en jouant** (duels, séries complétées,
+  récompense quotidienne), ou peuvent-ils **s'acheter avec de l'argent réel** ? C'est cette
+  réponse qui active — ou non — le cadre juridique du §9.
+- **Accumulation** : peut-on mettre plusieurs paquets gratuits « de côté », ou un seul ? Le
+  tableau ci-dessus suppose un seul.
+- **Le minuteur s'applique-t-il aussi aux paquets achetés** (limite anti-robot), ou seulement
+  au gratuit ?
+
+---
+
+## 11. Critères d'acceptation (comment on saura que c'est bon)
 
 1. Couper le réseau juste après le clic : au retour, aucune ouverture perdue, aucun double débit.
 2. Cliquer dix fois très vite : une seule ouverture, un seul débit.
