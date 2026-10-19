@@ -162,12 +162,17 @@ dépensent des **WikiCrédits**.
 
 ### Le principe
 
-- Un **paquet gratuit** toutes les **10 minutes**, remis à zéro après chaque ouverture.
+- Un **paquet gratuit** toutes les **10 minutes**, avec une **réserve plafonnée à 10** : on peut
+  laisser l'attente s'accumuler, mais pas indéfiniment. C'est le standard observé chez les deux
+  concurrents, et c'est le réglage qui respecte le mieux la vie réelle.
 - En attendant, il est possible d'ouvrir **tout de suite** en dépensant des WikiCrédits.
 - Le paquet gratuit et le paquet payant donnent **le même contenu** et les mêmes taux : on paie
   le temps, pas la chance. C'est la règle la plus importante du modèle — dès qu'un paquet payant
   est plus généreux, on retombe dans le tirage payant au contenu aléatoire, avec les questions
   juridiques qui vont avec (§9).
+- **Abonnement « temps »** (sur le modèle observé chez la concurrence) : le paquet gratuit arrive
+  toutes les 3 minutes. L'abonnement n'améliore **jamais** les chances — il ne fait qu'accélérer
+  le temps.
 
 ### Ce que cela implique techniquement
 
@@ -185,7 +190,7 @@ dépensent des **WikiCrédits**.
 |---|---|---|
 | 13 | Le joueur change l'heure de son ordinateur | Aucun effet : seul le serveur fait foi |
 | 14 | Deux onglets ouverts, un seul paquet gratuit | Le premier l'obtient, le second reçoit « pas encore disponible » |
-| 15 | Le joueur revient après 3 heures | Un seul paquet gratuit, pas dix-neuf : pas d'accumulation (à confirmer) |
+| 15 | Le joueur revient après 3 heures | Il retrouve ses paquets accumulés, **dans la limite de 10** : jamais plus | La réserve remonte à 10 au maximum |
 | 16 | Ouverture payante pendant l'attente | Débit des WikiCrédits, et le minuteur du paquet gratuit n'est pas remis à zéro |
 | 17 | Le compte à rebours affiché est faux (onglet en veille) | L'écran se recale sur l'heure du serveur au retour |
 | 18 | Fuseau horaire, heure d'été | Sans objet : tout est exprimé en temps universel |
@@ -201,13 +206,11 @@ C'est un écran à part entière : on le traitera quand on fera la vraie ouvertu
 
 ### Ce qui reste à trancher
 
-- Les **WikiCrédits** s'obtiennent-ils **uniquement en jouant** (duels, séries complétées,
-  récompense quotidienne), ou peuvent-ils **s'acheter avec de l'argent réel** ? C'est cette
-  réponse qui active — ou non — le cadre juridique du §9.
-- **Accumulation** : peut-on mettre plusieurs paquets gratuits « de côté », ou un seul ? Le
-  tableau ci-dessus suppose un seul.
+- **Sources de WikiCrédits** : voir §11 (proposition de quatre sources pour la première version).
 - **Le minuteur s'applique-t-il aussi aux paquets achetés** (limite anti-robot), ou seulement
   au gratuit ?
+- **Prix de l'abonnement** et de la réserve : les concurrents sont à 4,99 € par mois ; rien n'est
+  décidé chez nous.
 
 ---
 

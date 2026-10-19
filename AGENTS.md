@@ -64,9 +64,23 @@ En français, sans accents, en minuscules, avec des tirets si nécessaire
 (exemples : `/paquets`, `/collection`, `/series`, `/carte/grande-vague`).
 Pas d'adresses en anglais.
 
+## Modèle économique (validé)
+
+- Un paquet **gratuit toutes les 10 minutes**, avec une **réserve plafonnée à 10**.
+- Le paquet **payant** s'achète en WikiCrédits et donne **exactement le même contenu et les
+  mêmes taux** que le gratuit : on paie le temps, jamais la chance.
+- **Abonnement « temps »** : paquet gratuit toutes les 3 minutes. Il ne change jamais les
+  chances de tirage.
+- Les WikiCrédits **s'achètent** avec de l'argent réel et se gagnent aussi en jouant (sources
+  encore à définir).
+- **Aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
+
 ## Règle de la maquette (à respecter tant qu'il n'y a pas de serveur)
 
 - Le tirage des paquets est une **maquette assumée**.
+- Le compte à rebours du paquet gratuit est lui aussi **simulé dans le navigateur** : c'est une
+  commodité pour la démonstration, pas un mécanisme sûr. Le vrai minuteur doit vivre sur le
+  serveur.
 - Ne pas tenter de « sécuriser » ce tirage côté navigateur : cela donnerait une
   fausse impression de sécurité.
 - Les crédits sont **décoratifs**.

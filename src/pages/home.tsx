@@ -28,7 +28,7 @@ const STEPS = [
   {
     icon: PackageOpen,
     title: "Ouvrez un paquet",
-    text: "Cinq fiches tirées au hasard, selon des taux d'apparition affichés noir sur blanc.",
+    text: "Un paquet gratuit toutes les 10 minutes, jusqu'à 10 en réserve. Cinq fiches par paquet.",
   },
   {
     icon: Layers,
@@ -89,8 +89,8 @@ export function HomePage() {
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Gratuit · Prototype : les cartes s'ouvrent dans votre navigateur, rien n'est enregistré
-            sur un serveur.
+            Gratuit · Un paquet toutes les 10 minutes, jusqu'à 10 en réserve · Prototype : rien
+            n'est enregistré sur un serveur.
           </p>
 
           <dl className="grid max-w-lg grid-cols-3 gap-4 border-t pt-6">

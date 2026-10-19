@@ -5,6 +5,7 @@ import {
   BookOpen,
   CalendarDays,
   Coins,
+  Crown,
   Flame,
   LogOut,
   RotateCcw,
@@ -40,7 +41,8 @@ const BADGES = [
 ];
 
 export function ProfilePage() {
-  const { profile, collection, toggleTheme, theme, resetProgress, signOut } = useGame();
+  const { profile, collection, toggleTheme, theme, resetProgress, signOut, pro, setPro, packsReady } =
+    useGame();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = React.useState(profile.displayName);
 
@@ -147,7 +149,7 @@ export function ProfilePage() {
               <CardContent className="space-y-2.5 text-sm">
                 {[
                   ["Ouverture d'un paquet Standard", "il y a 2 heures", "+5 cartes"],
-                  ["Duel remporté contre nina.explore", "hier", "+420 crédits"],
+                  ["Duel remporté contre nina.explore", "hier", "+420 WikiCrédits"],
                   ["Fiche rare ajoutée : Stonehenge", "il y a 2 jours", "+92 XP"],
                   ["Badge débloqué : Série de 7 jours", "il y a 3 jours", "+1 badge"],
                 ].map(([title, time, reward]) => (
@@ -231,6 +233,33 @@ export function ProfilePage() {
 
             <Card className="bg-card/60">
               <CardHeader>
+                <CardTitle className="font-display flex items-center gap-2 text-sm">
+                  <Crown className="size-4 text-[var(--gold)]" /> Abonnement
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm">Paquet gratuit toutes les 3 minutes</p>
+                    <p className="text-muted-foreground text-[11px]">
+                      10 minutes sans abonnement. Le contenu et les taux ne changent pas.
+                    </p>
+                  </div>
+                  <Switch checked={pro} onCheckedChange={setPro} />
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Paquets en réserve</span>
+                  <span className="font-medium tabular-nums">{packsReady} / 10</span>
+                </div>
+                <p className="text-muted-foreground rounded-md border border-dashed px-2 py-1.5 text-[11px] leading-relaxed">
+                  Démo : cet interrupteur simule l'abonnement. Aucun paiement, aucune donnée envoyée.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/60">
+              <CardHeader>
                 <CardTitle className="font-display text-sm">Préférences</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -245,7 +274,7 @@ export function ProfilePage() {
                 <div className="space-y-2">
                   <p className="text-sm">Réinitialiser la partie</p>
                   <p className="text-muted-foreground text-[11px]">
-                    Remet la collection, les crédits et les statistiques à leur état initial.
+                    Remet la collection, les WikiCrédits et les statistiques à leur état initial.
                   </p>
                   <Button
                     variant="destructive"
