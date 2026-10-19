@@ -163,13 +163,11 @@ dépensent des **WikiCrédits**.
 ### Le principe
 
 - Un **paquet gratuit** toutes les **10 minutes**, avec une **réserve plafonnée à 10** : on peut
-  laisser l'attente s'accumuler, mais pas indéfiniment. C'est le standard observé chez les deux
-  concurrents, et c'est le réglage qui respecte le mieux la vie réelle.
-- En attendant, il est possible d'ouvrir **tout de suite** en dépensant des WikiCrédits.
-- Le paquet gratuit et le paquet payant donnent **le même contenu** et les mêmes taux : on paie
-  le temps, pas la chance. C'est la règle la plus importante du modèle — dès qu'un paquet payant
-  est plus généreux, on retombe dans le tirage payant au contenu aléatoire, avec les questions
-  juridiques qui vont avec (§9).
+  laisser l'attente s'accumuler, mais pas indéfiniment.
+- **Aucun paquet ne s'achète.** La seule façon d'ouvrir un paquet est d'attendre : c'est la
+  promesse la plus simple à tenir, et la plus facile à défendre.
+- **Réserve pleine = minuteur à l'arrêt.** Rien ne s'accumule au-delà de 10, et le décompte
+  repart seulement quand une place se libère (ouverture).
 - **Abonnement « temps »** (sur le modèle observé chez la concurrence) : le paquet gratuit arrive
   toutes les 3 minutes. L'abonnement n'améliore **jamais** les chances — il ne fait qu'accélérer
   le temps.

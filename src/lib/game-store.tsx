@@ -2,21 +2,14 @@ import * as React from "react";
 import { CARDS, drawCard } from "@/data/cards";
 import type { Card, OwnedCard, Profile } from "@/lib/types";
 import { RARITY_MAP } from "@/lib/types";
+import { FREE_INTERVAL_MS, consume, refill, type PackTimer } from "@/lib/pack-timer";
 
 const STORAGE_KEY = "wikitcg:state:v1";
 
-export const PACK_PRICE = 900;
 export const PACK_SIZE = 5;
-/** Nombre de paquets gratuits qu'on peut mettre de côté. */
-export const PACK_RESERVE_MAX = 10;
-export const FREE_INTERVAL_MS = 10 * 60 * 1000;
+export { PACK_RESERVE_MAX, FREE_INTERVAL_MS } from "@/lib/pack-timer";
+/** Rythme de l'abonnement « temps ». */
 export const PRO_INTERVAL_MS = 3 * 60 * 1000;
-
-export type PackOpenResult =
-  | { ok: true; cards: Card[]; mode: PackMode }
-  | { ok: false; reason: "reserve" | "credits" };
-
-export type PackMode = "gratuit" | "credits";
 
 type GameState = {
   /** Y a-t-il quelqu'un de connecté ? Simulé : aucun mot de passe, aucun serveur. */
@@ -24,7 +17,7 @@ type GameState = {
   profile: Profile;
   collection: OwnedCard[];
   wishlist: string[];
-  /** Paquets gratuits disponibles (0 à PACK_RESERVE_MAX). */
+  /** Paquets gratuits disponibles (0 à 10). */
   packsReady: number;
   /** Date (ms) d'arrivée du prochain paquet gratuit. */
   nextPackAt: number;
@@ -36,7 +29,8 @@ type GameState = {
 type GameContextValue = GameState & {
   ownedIds: Set<string>;
   owns: (cardId: string) => boolean;
-  openPack: (mode?: PackMode) => PackOpenResult;
+  /** Ouvre un paquet gratuit. Renvoie null si la réserve est vide. */
+  openPack: () => Card[] | null;
   addCard: (card: Card, edition?: OwnedCard["edition"]) => void;
   buyCard: (card: Card) => boolean;
   toggleWishlist: (cardId: string) => void;
@@ -136,66 +130,55 @@ function readStored(): Partial<GameState> | null {
   }
 }
 
-/**
- * Fait avancer la réserve de paquets gratuits au rythme écoulé.
- *
- * ATTENTION : dans cette maquette, le minuteur est simulé dans le navigateur.
- * Ce n'est pas un mécanisme sûr — un joueur peut modifier son horloge. Le vrai
- * minuteur doit vivre sur le serveur (voir docs/ouverture-paquet.md).
- */
-function catchUpPacks(state: GameState, now: number): GameState {
-  if (!state.signedIn) return state;
-
-  const interval = state.pro ? PRO_INTERVAL_MS : FREE_INTERVAL_MS;
-  if (state.packsReady >= PACK_RESERVE_MAX) {
-    // Réserve pleine : le compte à rebours reste figé, rien ne s'accumule au-delà.
-    return state.nextPackAt === now ? state : { ...state, nextPackAt: now };
-  }
-
-  let packsReady = state.packsReady;
-  let nextPackAt = state.nextPackAt || now + interval;
-
-  if (now < nextPackAt) return state;
-
-  while (now >= nextPackAt && packsReady < PACK_RESERVE_MAX) {
-    packsReady += 1;
-    nextPackAt += interval;
-  }
-
-  if (packsReady >= PACK_RESERVE_MAX) nextPackAt = now;
-
-  return { ...state, packsReady, nextPackAt };
-}
-
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = React.useState<GameState>(createInitialState);
   const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+
+  /**
+   * Avance le minuteur. On ne réécrit l'état que si quelque chose change,
+   * sinon on provoquerait un rendu (et une écriture) par seconde.
+   */
+  const tick = React.useCallback((prev: GameState, now = Date.now()): GameState => {
+    if (!prev.signedIn) return prev;
+    if (prev.packsReady >= 10) return prev; // réserve pleine : minuteur arrêté
+
+    const interval = prev.pro ? PRO_INTERVAL_MS : FREE_INTERVAL_MS;
+    const timer: PackTimer = { packsReady: prev.packsReady, nextPackAt: prev.nextPackAt };
+    const result = refill(timer, now, interval);
+
+    if (
+      result.timer.packsReady === prev.packsReady &&
+      result.timer.nextPackAt === prev.nextPackAt
+    ) {
+      return prev;
+    }
+    return { ...prev, packsReady: result.timer.packsReady, nextPackAt: result.timer.nextPackAt };
+  }, []);
 
   React.useEffect(() => {
     const stored = readStored();
     setState((prev) => {
       const merged = { ...prev, ...(stored ?? {}), ready: true };
-      return catchUpPacks(merged, Date.now());
+      return tick(merged, Date.now());
     });
     const storedTheme = localStorage.getItem("wikitcg:theme");
     const nextTheme = storedTheme === "light" ? "light" : "dark";
     setTheme(nextTheme);
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
-  }, []);
+  }, [tick]);
 
   React.useEffect(() => {
     if (!state.ready) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
-  // Le minuteur n'est vérifié qu'une fois par seconde : léger, et suffisant.
   React.useEffect(() => {
     if (!state.signedIn) return;
-    const timer = window.setInterval(() => {
-      setState((prev) => catchUpPacks(prev, Date.now()));
+    const id = window.setInterval(() => {
+      setState((prev) => tick(prev));
     }, 1000);
-    return () => window.clearInterval(timer);
-  }, [state.signedIn]);
+    return () => window.clearInterval(id);
+  }, [state.signedIn, tick]);
 
   const toggleTheme = React.useCallback(() => {
     setTheme((prev) => {
@@ -230,64 +213,52 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const openPack = React.useCallback(
-    (mode: PackMode = "gratuit"): PackOpenResult => {
-      let result: PackOpenResult = { ok: false, reason: "reserve" };
+  /**
+   * Ouvre un paquet gratuit. S'il n'y a plus de paquet en réserve, rien ne se passe.
+   * Aucune ouverture ne s'achète : la seule monnaie du paquet, c'est le temps.
+   */
+  const openPack = React.useCallback((): Card[] | null => {
+    let drawn: Card[] | null = null;
 
-      setState((prev) => {
-        if (mode === "gratuit" && prev.packsReady <= 0) {
-          result = { ok: false, reason: "reserve" };
-          return prev;
-        }
-        if (mode === "credits" && prev.profile.credits < PACK_PRICE) {
-          result = { ok: false, reason: "credits" };
-          return prev;
-        }
+    setState((prev) => {
+      if (!prev.signedIn || prev.packsReady <= 0) return prev;
 
-        const interval = prev.pro ? PRO_INTERVAL_MS : FREE_INTERVAL_MS;
-        const drawn = Array.from({ length: PACK_SIZE }, () => drawCard());
-        result = { ok: true, cards: drawn, mode };
+      const now = Date.now();
+      const interval = prev.pro ? PRO_INTERVAL_MS : FREE_INTERVAL_MS;
+      const next = consume(
+        { packsReady: prev.packsReady, nextPackAt: prev.nextPackAt },
+        now,
+        interval,
+      );
 
-        const owned: OwnedCard[] = drawn.map((card, index) => ({
-          id: `own_${card.id}_${Date.now()}_${index}`,
-          cardId: card.id,
-          obtainedAt: new Date().toISOString(),
-          edition:
-            card.rarity === "legendaire" || card.rarity === "ultra-rare" ? "prestige" : "standard",
-        }));
-        const xpGain = drawn.reduce(
-          (sum, card) => sum + Math.round(RARITY_MAP[card.rarity].baseValue / 20),
-          0,
-        );
+      drawn = Array.from({ length: PACK_SIZE }, () => drawCard());
+      const owned: OwnedCard[] = drawn.map((card, index) => ({
+        id: `own_${card.id}_${now}_${index}`,
+        cardId: card.id,
+        obtainedAt: new Date(now).toISOString(),
+        edition:
+          card.rarity === "legendaire" || card.rarity === "ultra-rare" ? "prestige" : "standard",
+      }));
+      const xpGain = drawn.reduce(
+        (sum, card) => sum + Math.round(RARITY_MAP[card.rarity].baseValue / 20),
+        0,
+      );
 
-        // Le paquet gratuit consomme une place de la réserve ; le payant non.
-        let packsReady = prev.packsReady;
-        let nextPackAt = prev.nextPackAt;
-        if (mode === "gratuit") {
-          const wasFull = prev.packsReady >= PACK_RESERVE_MAX;
-          packsReady = prev.packsReady - 1;
-          // Si la réserve était pleine, le décompte repart de maintenant.
-          nextPackAt = wasFull ? Date.now() + interval : prev.nextPackAt;
-        }
+      return {
+        ...prev,
+        packsReady: next.packsReady,
+        nextPackAt: next.nextPackAt,
+        collection: [...prev.collection, ...owned],
+        profile: {
+          ...prev.profile,
+          xp: prev.profile.xp + xpGain,
+          packsOpened: prev.profile.packsOpened + 1,
+        },
+      };
+    });
 
-        return {
-          ...prev,
-          packsReady,
-          nextPackAt,
-          collection: [...prev.collection, ...owned],
-          profile: {
-            ...prev.profile,
-            credits: mode === "credits" ? prev.profile.credits - PACK_PRICE : prev.profile.credits,
-            xp: prev.profile.xp + xpGain,
-            packsOpened: prev.profile.packsOpened + 1,
-          },
-        };
-      });
-
-      return result;
-    },
-    [],
-  );
+    return drawn;
+  }, []);
 
   const buyCard = React.useCallback((card: Card): boolean => {
     let success = false;
@@ -352,7 +323,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return {
         ...prev,
         pro: value,
-        nextPackAt: prev.packsReady >= PACK_RESERVE_MAX ? now : now + interval,
+        nextPackAt: prev.packsReady >= 10 ? now : now + interval,
       };
     });
   }, []);
@@ -393,8 +364,8 @@ export function useNow(active = true, stepMs = 1000) {
   const [now, setNow] = React.useState(() => Date.now());
   React.useEffect(() => {
     if (!active) return;
-    const timer = window.setInterval(() => setNow(Date.now()), stepMs);
-    return () => window.clearInterval(timer);
+    const id = window.setInterval(() => setNow(Date.now()), stepMs);
+    return () => window.clearInterval(id);
   }, [active, stepMs]);
   return now;
 }

@@ -67,12 +67,14 @@ Pas d'adresses en anglais.
 ## Modèle économique (validé)
 
 - Un paquet **gratuit toutes les 10 minutes**, avec une **réserve plafonnée à 10**.
-- Le paquet **payant** s'achète en WikiCrédits et donne **exactement le même contenu et les
-  mêmes taux** que le gratuit : on paie le temps, jamais la chance.
-- **Abonnement « temps »** : paquet gratuit toutes les 3 minutes. Il ne change jamais les
-  chances de tirage.
-- Les WikiCrédits **s'achètent** avec de l'argent réel et se gagnent aussi en jouant (sources
-  encore à définir).
+- **Aucun paquet ne s'achète.** La seule monnaie d'un paquet, c'est le temps. Il n'existe ni
+  ouverture payante, ni achat de tirage supplémentaire.
+- **Réserve pleine : le minuteur s'arrête.** Il ne capitalise rien au-delà de 10, et repart
+  seulement quand une place se libère.
+- **Abonnement « temps »** : le minuteur passe à un paquet toutes les 3 minutes. Il ne change
+  jamais les chances de tirage.
+- Les WikiCrédits servent à autre chose (achat de fiches à l'unité), et **ne servent pas** à
+  ouvrir des paquets.
 - **Aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
 
 ## Règle de la maquette (à respecter tant qu'il n'y a pas de serveur)

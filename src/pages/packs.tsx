@@ -1,14 +1,12 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import {
-  Coins,
+  CheckCircle2,
   Crown,
-  Gift,
   Package,
   PackageOpen,
   RotateCcw,
   Sparkles,
-  Star,
   Timer,
   Wand2,
   Zap,
@@ -24,93 +22,56 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { RARITIES, RARITY_MAP, type Card as CardType } from "@/lib/types";
 import {
-  PACK_PRICE,
+  FREE_INTERVAL_MS,
   PACK_RESERVE_MAX,
   formatCountdown,
   useGame,
   useNow,
-  type PackMode,
 } from "@/lib/game-store";
-import { cn, formatNumber } from "@/lib/utils";
-
-const PACK_TYPES = [
-  {
-    id: "standard",
-    name: "Paquet Standard",
-    price: 900,
-    cards: 5,
-    perks: ["5 fiches", "Taux de base", "1 garantie peu commune ou mieux"],
-    accent: "oklch(0.72 0.13 250)",
-    highlight: false,
-  },
-  {
-    id: "augmente",
-    name: "Paquet Augmenté",
-    price: 2200,
-    cards: 5,
-    perks: ["5 fiches", "Rare garanti", "Chances doublées en super rare"],
-    accent: "oklch(0.68 0.17 300)",
-    highlight: true,
-  },
-  {
-    id: "prestige",
-    name: "Coffret Prestige",
-    price: 5000,
-    cards: 8,
-    perks: ["8 fiches", "Super rare garanti", "1 carte en édition prestige"],
-    accent: "oklch(0.82 0.15 85)",
-    highlight: false,
-  },
-];
+import { cn } from "@/lib/utils";
 
 export function PacksPage() {
-  const { profile, openPack, collection, packsReady, nextPackAt, pro, interval } = useGame();
+  const { openPack, collection, packsReady, nextPackAt, pro, interval, profile } = useGame();
+  const now = useNow(true);
+
   const [opened, setOpened] = React.useState<CardType[]>([]);
   const [revealed, setRevealed] = React.useState(0);
   const [busy, setBusy] = React.useState(false);
-  const [lastMode, setLastMode] = React.useState<PackMode>("gratuit");
 
-  const now = useNow(true);
-  const remaining = Math.max(0, nextPackAt - now);
   const full = packsReady >= PACK_RESERVE_MAX;
+  const remaining = full ? 0 : Math.max(0, nextPackAt - now);
 
-  const handleOpen = (mode: PackMode) => {
-    const result = openPack(mode);
-    if (!result.ok) {
-      toast.error(
-        result.reason === "reserve"
-          ? "Aucun paquet gratuit disponible — patientez ou utilisez vos WikiCrédits."
-          : "WikiCrédits insuffisants.",
-      );
+  const handleOpen = () => {
+    if (packsReady <= 0) {
+      toast.error("Aucun paquet en réserve — le prochain arrive bientôt.");
+      return;
+    }
+    const cards = openPack();
+    if (!cards) {
+      toast.error("Aucun paquet en réserve.");
       return;
     }
 
-    setLastMode(mode);
     setBusy(true);
-    setOpened(result.cards);
+    setOpened(cards);
     setRevealed(0);
 
-    result.cards.forEach((_, index) => {
+    cards.forEach((_, index) => {
       window.setTimeout(() => {
         setRevealed(index + 1);
-        if (index === result.cards.length - 1) setBusy(false);
+        if (index === cards.length - 1) setBusy(false);
       }, 380 * (index + 1));
     });
 
-    const best = result.cards.reduce((a, b) =>
+    const best = cards.reduce((a, b) =>
       RARITIES.indexOf(b.rarity) > RARITIES.indexOf(a.rarity) ? b : a,
     );
     if (["ultra-rare", "legendaire"].includes(best.rarity)) {
       window.setTimeout(
         () => toast.success(`${RARITY_MAP[best.rarity].label} : ${best.name} !`),
-        380 * result.cards.length + 200,
+        380 * cards.length + 200,
       );
     }
-  };
-
-  const revealAll = () => {
-    setRevealed(opened.length);
-    setBusy(false);
   };
 
   return (
@@ -118,28 +79,32 @@ export function PacksPage() {
       <PageHeader
         eyebrow="Paquets"
         title="Ouvrir un paquet"
-        description="Un paquet gratuit arrive toutes les 10 minutes, et vous pouvez en garder jusqu'à 10. Pressé ? Ouvrez-en un tout de suite avec vos WikiCrédits — le contenu et les taux sont identiques."
+        description={`Un paquet gratuit toutes les ${Math.round(FREE_INTERVAL_MS / 60000)} minutes. Vous pouvez en garder jusqu'à ${PACK_RESERVE_MAX} : le minuteur continue de tourner tant que la réserve n'est pas pleine.`}
         actions={
           <Badge variant="secondary" className="h-8 gap-1.5 px-3">
-            <Coins className="size-3.5 text-[var(--gold)]" /> {formatNumber(profile.credits)}{" "}
-            WikiCrédits
+            <Package className="size-3.5" /> {packsReady} / {PACK_RESERVE_MAX} en réserve
           </Badge>
         }
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
-          {/* Réserve de paquets gratuits */}
-          <Card className="overflow-hidden border-primary/25 bg-gradient-to-br from-primary/10 via-transparent to-transparent">
+          {/* Réserve */}
+          <Card className="border-primary/25 bg-gradient-to-br from-primary/10 via-transparent to-transparent">
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div className="flex items-center gap-4">
-                  <div className="bg-primary/15 text-primary grid size-12 shrink-0 place-items-center rounded-xl">
+                  <div
+                    className={cn(
+                      "grid size-12 shrink-0 place-items-center rounded-xl",
+                      full ? "bg-[oklch(0.82_0.15_85/0.18)] text-[var(--gold)]" : "bg-primary/15 text-primary",
+                    )}
+                  >
                     <Package className="size-6" />
                   </div>
                   <div>
                     <p className="text-muted-foreground text-[11px] tracking-[0.14em] uppercase">
-                      Paquets gratuits en réserve
+                      Paquets en réserve
                     </p>
                     <p className="font-display text-3xl font-bold tabular-nums">
                       {packsReady}
@@ -148,18 +113,25 @@ export function PacksPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
-                  <Timer className="text-muted-foreground size-4" />
-                  <span className="text-muted-foreground text-xs">
-                    {full ? "Réserve pleine" : "Prochain dans"}
-                  </span>
-                  <span className="font-mono text-sm font-semibold tabular-nums">
-                    {full ? "—" : formatCountdown(remaining)}
-                  </span>
-                </div>
+                {full ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-[oklch(0.82_0.15_85/0.4)] px-3 py-2 text-[var(--gold)]">
+                    <CheckCircle2 className="size-4" />
+                    <span className="text-xs font-medium">
+                      Réserve pleine — le minuteur est à l'arrêt
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                    <Timer className="text-muted-foreground size-4" />
+                    <span className="text-muted-foreground text-xs">Prochain dans</span>
+                    <span className="font-mono text-sm font-semibold tabular-nums">
+                      {formatCountdown(remaining)}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {/* Dix emplacements, remplis de gauche à droite */}
+              {/* Dix emplacements */}
               <div className="flex flex-wrap items-center gap-1.5">
                 {Array.from({ length: PACK_RESERVE_MAX }).map((_, index) => (
                   <span
@@ -176,22 +148,24 @@ export function PacksPage() {
                 ))}
               </div>
 
-              {!full && (
+              {!full ? (
                 <div className="space-y-1">
-                  <Progress
-                    value={((interval - remaining) / interval) * 100}
-                    className="h-1.5"
-                  />
+                  <Progress value={((interval - remaining) / interval) * 100} className="h-1.5" />
                   <p className="text-muted-foreground text-[11px]">
-                    Rythme actuel : un paquet toutes les {Math.round(interval / 60000)} minutes
-                    {pro ? " (abonnement actif)" : ""}
+                    Un paquet toutes les {Math.round(interval / 60000)} minutes
+                    {pro ? " (abonnement actif)" : ""} · prochain à {formatCountdown(remaining)}
                   </p>
                 </div>
+              ) : (
+                <p className="text-muted-foreground text-[11px]">
+                  Ouvrez un paquet pour libérer une place : le compte à rebours repartira
+                  immédiatement.
+                </p>
               )}
             </CardContent>
           </Card>
 
-          {/* Zone d'ouverture / révélation */}
+          {/* Zone d'ouverture */}
           <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-[oklch(0.26_0.04_258)] via-[oklch(0.21_0.03_258)] to-[oklch(0.19_0.03_258)] p-6 sm:p-8">
             <div className="bg-grid absolute inset-0 opacity-20" />
 
@@ -204,55 +178,41 @@ export function PacksPage() {
                 <div className="space-y-1">
                   <h2 className="font-display text-xl font-bold">
                     {packsReady > 0
-                      ? `Vous avez ${packsReady} paquet${packsReady > 1 ? "s" : ""} en réserve`
-                      : "Patience, ça pousse…"}
+                      ? `${packsReady} paquet${packsReady > 1 ? "s" : ""} à ouvrir`
+                      : "Aucun paquet pour l'instant"}
                   </h2>
                   <p className="text-muted-foreground mx-auto max-w-md text-sm">
                     {packsReady > 0
-                      ? "Chaque paquet contient cinq fiches, révélées de la plus commune à la plus rare."
-                      : "Aucun paquet disponible pour l'instant. Vous pouvez en ouvrir un tout de suite avec vos WikiCrédits."}
+                      ? "Cinq fiches, révélées de la plus commune à la plus rare."
+                      : `Le prochain arrive dans ${formatCountdown(remaining)}. Vous pouvez quitter la page, il vous attendra.`}
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <Button
-                    size="lg"
-                    variant="gold"
-                    onClick={() => handleOpen("gratuit")}
-                    disabled={busy || packsReady <= 0}
-                  >
-                    <PackageOpen className="size-4" /> Ouvrir le paquet gratuit
-                    {packsReady > 0 ? ` (${packsReady})` : ""}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={() => handleOpen("credits")}
-                    disabled={busy || profile.credits < PACK_PRICE}
-                  >
-                    <Coins className="size-4" /> Ouvrir maintenant · {formatNumber(PACK_PRICE)}
-                  </Button>
-                </div>
+                <Button size="lg" variant="gold" onClick={handleOpen} disabled={busy || packsReady <= 0}>
+                  <PackageOpen className="size-4" /> Ouvrir un paquet
+                </Button>
 
                 <p className="text-muted-foreground mx-auto max-w-md rounded-lg border border-dashed px-3 py-2 text-[11px] leading-relaxed">
                   Démo : le minuteur et le tirage sont simulés dans votre navigateur, rien n'est
-                  enregistré sur un serveur. Les WikiCrédits sont décoratifs.
+                  enregistré sur un serveur.
                 </p>
               </div>
             ) : (
               <div className="relative space-y-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-display text-lg font-semibold">
-                      {revealed < opened.length ? "Révélation…" : "Butin du paquet"}
-                    </h2>
-                    <Badge variant="outline" className="text-[10px]">
-                      {lastMode === "gratuit" ? "Paquet gratuit" : "WikiCrédits"}
-                    </Badge>
-                  </div>
+                  <h2 className="font-display text-lg font-semibold">
+                    {revealed < opened.length ? "Révélation…" : "Butin du paquet"}
+                  </h2>
                   <div className="flex items-center gap-2">
                     {revealed < opened.length && (
-                      <Button variant="outline" size="sm" onClick={revealAll}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setRevealed(opened.length);
+                          setBusy(false);
+                        }}
+                      >
                         <Wand2 className="size-3.5" /> Tout révéler
                       </Button>
                     )}
@@ -314,88 +274,23 @@ export function PacksPage() {
 
                 {revealed >= opened.length && (
                   <div className="flex flex-wrap items-center gap-2 border-t pt-4">
-                    {packsReady > 0 && (
-                      <Button variant="gold" onClick={() => handleOpen("gratuit")}>
-                        <PackageOpen className="size-4" /> Ouvrir un autre gratuit ({packsReady})
-                      </Button>
-                    )}
-                    <Button
-                      variant={packsReady > 0 ? "outline" : "gold"}
-                      onClick={() => handleOpen("credits")}
-                      disabled={profile.credits < PACK_PRICE}
-                    >
-                      <Coins className="size-4" /> Ouvrir · {formatNumber(PACK_PRICE)} WikiCrédits
+                    <Button variant="gold" onClick={handleOpen} disabled={packsReady <= 0}>
+                      <PackageOpen className="size-4" /> Ouvrir un autre ({packsReady})
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to="/collection">Voir la collection</Link>
                     </Button>
                     <span className="text-muted-foreground ml-auto text-xs">
-                      {packsReady === 0 && !full
-                        ? `Prochain gratuit dans ${formatCountdown(remaining)}`
-                        : "Nouveau tirage disponible"}
+                      {full
+                        ? "Réserve pleine"
+                        : packsReady === 0
+                          ? `Prochain dans ${formatCountdown(remaining)}`
+                          : `${packsReady} en réserve`}
                     </span>
                   </div>
                 )}
               </div>
             )}
-          </div>
-
-          {/* Formules */}
-          <div className="grid gap-4 md:grid-cols-3">
-            {PACK_TYPES.map((pack) => (
-              <Card
-                key={pack.id}
-                className={cn("relative overflow-hidden bg-card/60", pack.highlight && "ring-1")}
-                style={{
-                  borderColor: `color-mix(in oklch, ${pack.accent} 30%, var(--border))`,
-                  boxShadow: pack.highlight
-                    ? `0 0 0 1px color-mix(in oklch, ${pack.accent} 40%, transparent)`
-                    : undefined,
-                }}
-              >
-                {pack.highlight && (
-                  <Badge
-                    className="absolute top-3 right-3 text-[10px]"
-                    style={{ backgroundColor: pack.accent, color: "oklch(0.2 0.02 260)" }}
-                  >
-                    Populaire
-                  </Badge>
-                )}
-                <CardHeader>
-                  <div
-                    className="grid size-9 place-items-center rounded-lg"
-                    style={{
-                      backgroundColor: `color-mix(in oklch, ${pack.accent} 16%, transparent)`,
-                      color: pack.accent,
-                    }}
-                  >
-                    <Gift className="size-4.5" />
-                  </div>
-                  <CardTitle className="font-display mt-2 text-base">{pack.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="font-display flex items-baseline gap-1 text-2xl font-bold">
-                    {formatNumber(pack.price)}
-                    <span className="text-muted-foreground text-xs font-normal">WikiCrédits</span>
-                  </p>
-                  <ul className="space-y-1.5">
-                    {pack.perks.map((perk) => (
-                      <li
-                        key={perk}
-                        className="text-muted-foreground flex items-center gap-1.5 text-xs"
-                      >
-                        <Star className="size-3" style={{ color: pack.accent }} /> {perk}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    variant={pack.highlight ? "default" : "outline"}
-                    size="sm"
-                    className="w-full"
-                    onClick={() => toast.info("Formule disponible dans la version complète.")}
-                  >
-                    Choisir
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
 
@@ -429,8 +324,29 @@ export function PacksPage() {
               })}
               <Separator className="my-2" />
               <p className="text-muted-foreground text-[11px] leading-relaxed">
-                Les taux sont identiques pour le paquet gratuit et le paquet payant : on paie le
-                temps, jamais la chance.
+                Il n'existe qu'une seule façon d'ouvrir un paquet : attendre. Aucun paquet ne
+                s'achète.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60">
+            <CardHeader>
+              <CardTitle className="font-display text-sm">Comment ça marche</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-xs leading-relaxed text-muted-foreground">
+              <p>
+                <span className="text-foreground font-medium">Un paquet toutes les 10 minutes.</span>{" "}
+                Tant que la réserve n'est pas pleine, le minuteur tourne.
+              </p>
+              <p>
+                <span className="text-foreground font-medium">Jusqu'à 10 en réserve.</span> Vous
+                pouvez laisser passer une nuit : vous ne perdrez rien, mais vous n'aurez jamais plus
+                de 10.
+              </p>
+              <p>
+                <span className="text-foreground font-medium">Réserve pleine : plus de minuteur.</span>{" "}
+                Ouvrez un paquet pour libérer une place et relancer le décompte.
               </p>
             </CardContent>
           </Card>
@@ -443,8 +359,8 @@ export function PacksPage() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p className="text-muted-foreground text-xs leading-relaxed">
-                L'abonnement accélère seulement les paquets gratuits — il ne change jamais les
-                chances. Réglable dans le profil (démo).
+                L'abonnement accélère le minuteur : un paquet toutes les 3 minutes. Il ne change
+                jamais les chances de tirage.
               </p>
               <div className="flex items-center justify-between border-t pt-2">
                 <span className="text-muted-foreground text-xs">Statut</span>
@@ -465,9 +381,8 @@ export function PacksPage() {
               <CardTitle className="font-display text-sm">Vos statistiques</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <Row label="Paquets ouverts" value={formatNumber(profile.packsOpened)} />
-              <Row label="Cartes possédées" value={formatNumber(collection.length)} />
-              <Row label="WikiCrédits" value={formatNumber(profile.credits)} />
+              <Row label="Paquets ouverts" value={String(profile.packsOpened)} />
+              <Row label="Cartes possédées" value={String(collection.length)} />
               <Row label="Niveau" value={String(profile.level)} />
             </CardContent>
           </Card>
