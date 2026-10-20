@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useGame } from "@/lib/game-store";
 import { CardLink } from "@/components/card-link";
 import {
   ArrowRight,
@@ -45,6 +46,10 @@ const STEPS = [
 
 
 export function HomePage() {
+  const { signedIn } = useGame();
+  // Un joueur connecté n'a plus rien à faire sur une page de présentation.
+  if (signedIn) return <Navigate to="/explorer" replace />;
+
   return (
     <div className="space-y-20">
       {/* ——— Héros ——— */}

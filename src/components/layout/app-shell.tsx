@@ -29,7 +29,7 @@ const NAV = [
     label: "Découvrir",
     items: [
       { to: "/", label: "Accueil", icon: Home, end: true },
-      { to: "/explorer", label: "Explorer", icon: Compass },
+      { to: "/explorer", label: "Catalogue", icon: Compass },
     ],
   },
   {

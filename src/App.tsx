@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation, type Location } from "react-
 import { AppShell } from "@/components/layout/app-shell";
 import { PublicShell } from "@/components/layout/public-shell";
 import { RequireAuth } from "@/components/require-auth";
+import { useGame } from "@/lib/game-store";
 import { GameProvider } from "@/lib/game-store";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +30,12 @@ function ScrollToTop({ enabled }: { enabled: boolean }) {
   return null;
 }
 
+/** Le catalogue s'affiche dans la barre latérale pour un joueur, en public sinon. */
+function AdaptiveShell() {
+  const { signedIn } = useGame();
+  return signedIn ? <AppShell /> : <PublicShell />;
+}
+
 function AppRoutes() {
   const location = useLocation();
   const background = (location.state as BackgroundState)?.backgroundLocation;
@@ -41,9 +48,13 @@ function AppRoutes() {
         {/* Public : on peut regarder sans compte. */}
         <Route element={<PublicShell />}>
           <Route index element={<HomePage />} />
-          <Route path="/explorer" element={<ExplorePage />} />
           <Route path="/carte/:slug" element={<CardDetailPage />} />
           <Route path="/regles" element={<RulesPage />} />
+        </Route>
+
+        {/* Le catalogue suit le statut : barre latérale si connecté. */}
+        <Route element={<AdaptiveShell />}>
+          <Route path="/explorer" element={<ExplorePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
