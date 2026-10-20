@@ -318,7 +318,7 @@ function toCard(entry: GeneratedEntry): Card {
     era: "",
     origin: "",
     blurb: entry.blurb,
-    lore: entry.lore,
+    lore: "",
     stats: {
       savoir: statFromViews(entry.views, entry.slug, "savoir"),
       influence: statFromViews(entry.views, entry.slug, "influence"),

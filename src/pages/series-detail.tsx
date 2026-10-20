@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { CardLink } from "@/components/card-link";
 import {
   ArrowLeft,
   Check,
@@ -108,9 +109,9 @@ export function SeriesDetailPage() {
               const accent = RARITY_MAP[card.rarity].accent;
 
               return (
-                <Link
+                <CardLink
                   key={card.id}
-                  to={`/carte/${card.slug}`}
+                  slug={card.slug}
                   className={cn(
                     "group relative flex flex-col overflow-hidden rounded-xl border transition-all",
                     owned
@@ -163,7 +164,7 @@ export function SeriesDetailPage() {
                       </p>
                     )}
                   </div>
-                </Link>
+                </CardLink>
               );
             })}
           </div>
@@ -220,9 +221,9 @@ export function SeriesDetailPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {missingRares.map((card) => (
-                  <Link
+                  <CardLink
                     key={card.id}
-                    to={`/carte/${card.slug}`}
+                    slug={card.slug}
                     className="hover:bg-accent/40 flex items-center gap-2 rounded-md p-1.5"
                   >
                     <CardArt card={card} className="size-8 shrink-0 rounded" showGlyph={false} />
@@ -230,7 +231,7 @@ export function SeriesDetailPage() {
                     <span className="text-muted-foreground text-[10px] tabular-nums">
                       {formatNumber(card.value)}
                     </span>
-                  </Link>
+                  </CardLink>
                 ))}
               </CardContent>
             </Card>

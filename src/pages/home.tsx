@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { CardLink } from "@/components/card-link";
 import {
   ArrowRight,
   BookOpen,
@@ -112,9 +113,9 @@ export function HomePage() {
         {/* Deck de démonstration */}
         <div className="relative mx-auto flex h-[380px] w-full max-w-md scale-[0.92] items-center justify-center sm:scale-100">
           {FEATURED.slice(0, 3).map((card, index) => (
-            <Link
+            <CardLink
               key={card.id}
-              to={`/carte/${card.slug}`}
+              slug={card.slug}
               className="group absolute transition-[filter] duration-500 hover:z-30 hover:drop-shadow-[0_24px_40px_rgba(0,0,0,0.55)]"
               style={{
                 transform: `rotate(${(index - 1) * 9}deg) translateX(${(index - 1) * 72}px)`,
@@ -139,7 +140,7 @@ export function HomePage() {
                   </div>
                 </div>
               </div>
-            </Link>
+            </CardLink>
           ))}
         </div>
       </section>

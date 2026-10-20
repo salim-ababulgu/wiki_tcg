@@ -228,6 +228,7 @@ function CardDetailBody({ card }: { card: CardType }) {
           </CardContent>
         </Card>
 
+        {(card.lore || card.facts.length > 0) && (
         <Card className="bg-card/60">
           <CardHeader className="pb-2">
             <CardTitle className="font-display text-sm">À retenir</CardTitle>
@@ -254,6 +255,7 @@ function CardDetailBody({ card }: { card: CardType }) {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* Source Wikipédia */}
         <Card className="bg-card/60">

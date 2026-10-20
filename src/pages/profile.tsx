@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { CardLink } from "@/components/card-link";
+import { useNavigate } from "react-router-dom";
 import {
   Award,
   BookOpen,
@@ -126,9 +127,9 @@ export function ProfilePage() {
                 )}
                 {rarest.map((card) =>
                   card ? (
-                    <Link
+                    <CardLink
                       key={card.id}
-                      to={`/carte/${card.slug}`}
+                      slug={card.slug}
                       className="hover:bg-accent/40 flex items-center gap-2 rounded-lg p-1.5"
                     >
                       <RarityBadge rarity={card.rarity} className="w-8 justify-center" />
@@ -136,7 +137,7 @@ export function ProfilePage() {
                       <span className="text-muted-foreground flex items-center gap-1 text-xs tabular-nums">
                         <Coins className="size-3" /> {formatNumber(card.value)}
                       </span>
-                    </Link>
+                    </CardLink>
                   ) : null,
                 )}
               </CardContent>

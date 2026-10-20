@@ -1,4 +1,5 @@
 import * as React from "react";
+import { CardLink } from "@/components/card-link";
 import { Link } from "react-router-dom";
 import {
   CheckCircle2,
@@ -252,7 +253,7 @@ export function PacksPage() {
                         }}
                       >
                         {isRevealed ? (
-                          <Link to={`/carte/${card.slug}`} className="block">
+                          <CardLink slug={card.slug} className="block">
                             <CardArt card={card} className="h-28" glyphClassName="size-10" />
                             <div className="space-y-1 p-2">
                               <RarityBadge rarity={card.rarity} />
@@ -261,7 +262,7 @@ export function PacksPage() {
                                 {card.era}
                               </p>
                             </div>
-                          </Link>
+                          </CardLink>
                         ) : (
                           <div className="grid h-full min-h-[168px] place-items-center">
                             <Sparkles className="text-muted-foreground/50 size-6 animate-pulse" />
