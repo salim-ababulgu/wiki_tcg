@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { Check, Filter, LayoutGrid, Rows3, Search, SlidersHorizontal, X } from "lucide-react";
 import { CardTile } from "@/components/card-tile";
 import { PageHeader } from "@/components/page-header";
@@ -35,6 +35,9 @@ const RARITY_ORDER = Object.fromEntries(RARITIES.map((rarity, index) => [rarity,
 export function ExplorePage() {
   const [params, setParams] = useSearchParams();
   const { ownedIds, signedIn } = useGame();
+
+  // Le catalogue est la vitrine : une fois connecté, l'album remplace cet écran.
+  if (signedIn) return <Navigate to="/collection" replace />;
   const [query, setQuery] = React.useState(params.get("q") ?? "");
   const [dense, setDense] = React.useState(false);
 
