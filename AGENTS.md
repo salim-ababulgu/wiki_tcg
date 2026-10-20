@@ -25,10 +25,12 @@ Conséquences pour le design et les textes :
 
 ## Priorités, dans cet ordre
 
-1. La boucle principale : paquet → collection → série complète.
-2. Ce qui la soutient : page de série (« il te manque 3 fiches sur 12 »), mise en
-   avant des cartes rares, historique des ouvertures.
-3. Plus tard : duels, échanges et place de marché, guildes.
+1. La boucle principale : paquet → collection.
+2. Ce qui la soutient : mise en avant des cartes rares, historique des ouvertures.
+3. Plus tard : fusion des doublons, duels, échanges et place de marché, guildes.
+
+**Les séries ont été supprimées** (décision du 21 octobre) : trop limitantes, chaque
+nouvel article aurait dû entrer dans un thème choisi à la main.
 
 Écarté pour l'instant : paiements, multijoueur en temps réel.
 L'API Wikipédia est branchée (photo + résumé des fiches), voir « Sources externes ».
@@ -36,9 +38,10 @@ L'API Wikipédia est branchée (photo + résumé des fiches), voir « Sources ex
 ## Où en est le projet
 
 Prototype local, sans serveur : Vite, React 19, TypeScript, Tailwind v4, shadcn/ui.
-43 fiches écrites pour le projet (aucun contenu repris d'un autre site).
-Aucun compte réel, aucune donnée enregistrée ailleurs que dans le navigateur.
-Versionné sur Git, branche `main`.
+Catalogue de **1 981 cartes** : 1 941 générées à partir des articles Wikipédia les plus
+consultés (scripts/generate-catalog-bulk.mjs), plus 43 fiches éditoriales écrites pour le projet.
+La rareté y est mesurée sur les vues, pas inventée. Aucun compte réel, aucune donnée
+enregistrée ailleurs que dans le navigateur. Versionné sur Git, branche `main`.
 
 ## Objectif en cours
 
@@ -76,6 +79,9 @@ Pas d'adresses en anglais.
 - Les WikiCrédits servent à autre chose (achat de fiches à l'unité), et **ne servent pas** à
   ouvrir des paquets.
 - **Aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
+- **Doublons : on ne recycle pas** (décision du 21 octobre). Un exemplaire en double s'ajoute et
+  se compte, sans conversion. Il est conservé en vue d'une **fusion** — plusieurs exemplaires
+  pour obtenir une carte supérieure — qui n'est pas encore définie et ne doit pas être inventée.
 
 ## Sources externes
 

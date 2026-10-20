@@ -156,7 +156,8 @@ export function CollectionPage() {
         <TabsContent value="doublons">
           {duplicates.length === 0 ? (
             <p className="text-muted-foreground rounded-xl border border-dashed py-12 text-center text-sm">
-              Aucun doublon pour l'instant. Ouvrez d'autres paquets pour commencer à échanger.
+              Aucun doublon pour l'instant. Les exemplaires en double sont conservés : ils
+              serviront à la fusion, quand elle existera.
             </p>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
