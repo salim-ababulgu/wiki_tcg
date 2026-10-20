@@ -30,8 +30,8 @@ Conséquences pour le design et les textes :
    avant des cartes rares, historique des ouvertures.
 3. Plus tard : duels, échanges et place de marché, guildes.
 
-Écarté pour l'instant : paiements, connexion à l'API Wikipédia, multijoueur en
-temps réel.
+Écarté pour l'instant : paiements, multijoueur en temps réel.
+L'API Wikipédia est branchée (photo + résumé des fiches), voir « Sources externes ».
 
 ## Où en est le projet
 
@@ -76,6 +76,24 @@ Pas d'adresses en anglais.
 - Les WikiCrédits servent à autre chose (achat de fiches à l'unité), et **ne servent pas** à
   ouvrir des paquets.
 - **Aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
+
+## Sources externes
+
+Wikipédia et Wikimedia Commons sont utilisés pour la photo et le résumé des fiches.
+
+- **Attribution obligatoire** : le texte et l'image restent sous licence CC BY-SA. Ils sont
+  affichés dans un bloc « Source : Wikipédia », avec la mention de licence et un lien vers
+  l'article. Ils ne sont jamais présentés comme notre contenu.
+- **Bandeau « Fiche Wikipédia »** sur chaque fiche carte : c'est le lien vers l'article.
+- **Politesse technique** : cache local de 7 jours, deux requêtes simultanées au maximum,
+  chargement différé (une carte n'interroge l'API que lorsqu'elle entre à l'écran), délai de
+  7 secondes, échec silencieux.
+- **Ne jamais réécrire l'URL d'une vignette** pour changer sa taille : Wikimedia refuse les
+  tailles non générées (erreur 400). On utilise l'URL telle que fournie.
+- **Toujours un repli** : si l'image échoue, on affiche l'illustration générée. Jamais de carré
+  cassé.
+- Avec un serveur, ces appels devront passer par un relais maison (mise en cache et
+  identification correcte), pas depuis le navigateur de chaque visiteur.
 
 ## Règle de la maquette (à respecter tant qu'il n'y a pas de serveur)
 

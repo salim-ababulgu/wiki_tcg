@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Check, Coins } from "lucide-react";
-import { CardArt } from "@/components/card-art";
+import { WikiPhoto } from "@/components/wiki-photo";
 import { RarityBadge } from "@/components/rarity-badge";
 import { RARITY_MAP, type Card } from "@/lib/types";
 import { cn, formatNumber } from "@/lib/utils";
@@ -38,7 +38,11 @@ export function CardTile({
       />
 
       <div className="relative">
-        <CardArt card={card} className={compact ? "h-32" : "h-44"} glyphClassName={compact ? "size-10" : "size-14"} />
+        <WikiPhoto
+          card={card}
+          className={compact ? "h-32" : "h-44"}
+          glyphClassName={compact ? "size-10" : "size-14"}
+        />
         <div className="absolute top-2 left-2 flex items-center gap-1.5">
           <RarityBadge rarity={card.rarity} />
         </div>

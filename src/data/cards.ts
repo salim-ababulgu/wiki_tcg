@@ -178,6 +178,57 @@ const SET_BY_CATEGORY: Record<Category, string> = {
   Recits: "Rêves & récits",
 };
 
+/**
+ * Article Wikipédia associé à chaque fiche. C'est la source de l'image et du
+ * résumé affichés sur la fiche carte (licence CC BY-SA, attribution obligatoire).
+ * Les titres sont ceux de la Wikipédia francophone.
+ */
+const SOURCE_TITLES: Record<string, string> = {
+  abeille: "Abeille",
+  "loup-gris": "Loup gris",
+  corbeau: "Corbeau freux",
+  "baleine-bleue": "Baleine bleue",
+  "panda-geant": "Panda géant",
+  axolotl: "Axolotl",
+  gravitation: "Gravitation",
+  adn: "Acide désoxyribonucléique",
+  "tableau-periodique": "Tableau périodique des éléments",
+  "trou-noir": "Trou noir",
+  "theoreme-pythagore": "Théorème de Pythagore",
+  vaccination: "Vaccination",
+  quanta: "Quantum",
+  cleopatre: "Cléopâtre VII",
+  "grande-muraille": "Grande Muraille",
+  "route-de-la-soie": "Route de la soie",
+  imprimerie: "Imprimerie",
+  "apollo-11": "Apollo 11",
+  "revolution-industrielle": "Révolution industrielle",
+  "frida-kahlo": "Frida Kahlo",
+  beethoven: "Ludwig van Beethoven",
+  "estampe-japonaise": "Ukiyo-e",
+  "vitrail-gothique": "Vitrail",
+  jazz: "Jazz",
+  "grande-vague": "La Grande Vague de Kanagawa",
+  "machu-picchu": "Machu Picchu",
+  stonehenge: "Stonehenge",
+  sahara: "Sahara",
+  venise: "Venise",
+  kilimandjaro: "Kilimandjaro",
+  "grand-canyon": "Grand Canyon",
+  boussole: "Boussole",
+  "moteur-a-vapeur": "Machine à vapeur",
+  transistor: "Transistor",
+  telescope: "Télescope",
+  "satellite-artificiel": "Satellite artificiel",
+  "pont-suspendu": "Pont suspendu",
+  odyssee: "Odyssée",
+  "mille-et-une-nuits": "Les Mille et Une Nuits",
+  dracula: "Dracula (roman)",
+  graal: "Graal",
+  yggdrasil: "Yggdrasil",
+  atlantide: "Atlantide",
+};
+
 export const CARDS: Card[] = SEEDS.map((seed, index) => {
   const [slug, name, category, rarity, era, origin, blurb, fact1, fact2] = seed;
   const info = RARITY_MAP[rarity];
@@ -203,6 +254,7 @@ export const CARDS: Card[] = SEEDS.map((seed, index) => {
     number: `${String(index + 1).padStart(3, "0")} / ${String(SEEDS.length).padStart(3, "0")}`,
     tags: [category.toLowerCase(), era.toLowerCase(), origin.toLowerCase()],
     facts: [fact1, fact2],
+    sourceTitle: SOURCE_TITLES[slug] ?? name,
   };
 });
 

@@ -3,8 +3,10 @@ import {
   ArrowLeft,
   Bookmark,
   BookmarkCheck,
+  BookOpen,
   CalendarDays,
   Coins,
+  ExternalLink,
   Globe2,
   Hash,
   Package,
@@ -12,7 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
-import { CardArt } from "@/components/card-art";
+import { WikiPhoto } from "@/components/wiki-photo";
 import { CardTile } from "@/components/card-tile";
 import { RarityBadge } from "@/components/rarity-badge";
 import { StatBar } from "@/components/stat-bar";
@@ -23,6 +25,8 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { CARDS, CARD_BY_SLUG } from "@/data/cards";
 import { useGame } from "@/lib/game-store";
+import { useWikiSummary } from "@/lib/use-wikipedia";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RARITY_MAP } from "@/lib/types";
 import { formatNumber, unit } from "@/lib/utils";
 import { NotFoundPage } from "@/pages/not-found";
@@ -31,6 +35,8 @@ export function CardDetailPage() {
   const { slug = "" } = useParams();
   const card = CARD_BY_SLUG.get(slug);
   const { profile, owns, buyCard, wishlist, toggleWishlist, collection, signedIn } = useGame();
+  // Appelé avant le retour anticipé : un hook ne peut pas être conditionnel.
+  const wiki = useWikiSummary(card?.sourceTitle);
 
   if (!card) return <NotFoundPage />;
 
@@ -74,7 +80,7 @@ export function CardDetailPage() {
             className="card-shine overflow-hidden rounded-2xl border bg-card shadow-[0_30px_70px_-30px_rgba(0,0,0,0.9)]"
             style={{ borderColor: `color-mix(in oklch, ${info.accent} 40%, var(--border))` }}
           >
-            <CardArt card={card} className="h-64" glyphClassName="size-24" />
+            <WikiPhoto card={card} className="h-64" glyphClassName="size-24" lazy={false} />
             <div className="space-y-3 p-4">
               <div className="flex items-center justify-between">
                 <RarityBadge rarity={card.rarity} withLabel />
@@ -106,6 +112,17 @@ export function CardDetailPage() {
               </div>
             </div>
           </div>
+
+          {wiki.data?.pageUrl && (
+            <Button asChild variant="outline" className="w-full justify-between">
+              <a href={wiki.data.pageUrl} target="_blank" rel="noreferrer noopener">
+                <span className="flex items-center gap-2">
+                  <BookOpen className="size-4" /> Fiche Wikipédia
+                </span>
+                <ExternalLink className="size-3.5 opacity-60" />
+              </a>
+            </Button>
+          )}
 
           {signedIn ? (
             <div className="grid grid-cols-2 gap-2">
@@ -240,6 +257,46 @@ export function CardDetailPage() {
                   </Badge>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between gap-2">
+              <CardTitle className="font-display">Source : Wikipédia</CardTitle>
+              <Badge variant="outline" className="text-[10px]">
+                CC BY-SA
+              </Badge>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {wiki.loading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              ) : wiki.data ? (
+                <>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{wiki.data.extract}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2">
+                    <span className="text-muted-foreground text-[11px]">
+                      Texte et image : Wikipédia, licence CC BY-SA
+                    </span>
+                    <a
+                      href={wiki.data.pageUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-primary text-[11px] underline-offset-4 hover:underline"
+                    >
+                      Lire l'article ↗
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  Résumé indisponible : article introuvable ou connexion coupée. La fiche reste
+                  utilisable avec son contenu d'origine.
+                </p>
+              )}
             </CardContent>
           </Card>
 
