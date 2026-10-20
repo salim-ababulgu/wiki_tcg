@@ -1,9 +1,7 @@
 import * as React from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  Compass,
   Flame,
-  Home,
   LayoutGrid,
   Menu,
   Moon,
@@ -27,13 +25,6 @@ import { cn, formatNumber } from "@/lib/utils";
 
 const NAV = [
   {
-    label: "Découvrir",
-    items: [
-      { to: "/", label: "Accueil", icon: Home, end: true },
-      { to: "/explorer", label: "Catalogue", icon: Compass },
-    ],
-  },
-  {
     label: "Jouer",
     items: [
       { to: "/paquets", label: "Paquets", icon: Package },
@@ -53,7 +44,7 @@ const NAV = [
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <Link to="/" className="group flex items-center gap-2.5">
+    <Link to="/paquets" className="group flex items-center gap-2.5" aria-label="WikiTCG — mes paquets">
       <img
         src="/logo_wikitcg.png"
         alt=""
@@ -85,7 +76,6 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.end}
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
