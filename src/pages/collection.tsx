@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CARDS, CARD_BY_ID, RARITY_COUNTS } from "@/data/cards";
 import { useGame } from "@/lib/game-store";
 import { RARITIES, RARITY_MAP, type Card as CardType } from "@/lib/types";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, plural } from "@/lib/utils";
 
 export function CollectionPage() {
   const { collection, wishlist, profile } = useGame();
@@ -49,7 +49,7 @@ export function CollectionPage() {
       <PageHeader
         eyebrow="Ma collection"
         title="Votre encyclopédie"
-        description={`${ownedCards.length} fiches distinctes sur ${CARDS.length}, ${collection.length} cartes au total. Valeur estimée de la collection : ${formatNumber(totalValue)} WikiCrédits.`}
+        description={`${plural(ownedCards.length, "fiche distincte", "fiches distinctes")} sur ${CARDS.length}, ${collection.length} carte${collection.length > 1 ? "s" : ""} au total. Valeur estimée de la collection : ${formatNumber(totalValue)} WikiCrédits.`}
         actions={
           <Button asChild>
             <Link to="/paquets">

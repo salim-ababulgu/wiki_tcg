@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PackDock } from "@/components/pack-dock";
 import { useGame } from "@/lib/game-store";
 import { cn, formatNumber } from "@/lib/utils";
 
@@ -266,6 +267,9 @@ export function AppShell() {
           </div>
         </footer>
       </div>
+
+      {/* Mini-deck : la réserve de paquets, sur toutes les pages du jeu */}
+      <PackDock />
     </div>
   );
 }
