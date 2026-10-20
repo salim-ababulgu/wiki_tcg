@@ -1,19 +1,18 @@
 import * as React from "react";
-import { CardLink } from "@/components/card-link";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Crown,
+  ExternalLink,
   Package,
   PackageOpen,
   RotateCcw,
-  Sparkles,
   Timer,
   Wand2,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import { CardArt } from "@/components/card-art";
+import { WikiPhoto } from "@/components/wiki-photo";
 import { PageHeader } from "@/components/page-header";
 import { RarityBadge } from "@/components/rarity-badge";
 import { Badge } from "@/components/ui/badge";
@@ -31,16 +30,20 @@ import {
 } from "@/lib/game-store";
 import { cn } from "@/lib/utils";
 
+const FLIP_STAGGER_MS = 150;
+
 export function PacksPage() {
   const { openPack, collection, packsReady, nextPackAt, pro, interval, profile } = useGame();
   const now = useNow(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [opened, setOpened] = React.useState<CardType[]>([]);
-  const [revealed, setRevealed] = React.useState(0);
-  const [busy, setBusy] = React.useState(false);
+  const [flipped, setFlipped] = React.useState<Set<number>>(new Set());
 
   const full = packsReady >= PACK_RESERVE_MAX;
   const remaining = full ? 0 : Math.max(0, nextPackAt - now);
+  const allFlipped = opened.length > 0 && flipped.size === opened.length;
 
   const handleOpen = () => {
     if (packsReady <= 0) {
@@ -53,26 +56,29 @@ export function PacksPage() {
       return;
     }
 
-    setBusy(true);
+    // Les cartes sont tirées côté logique, mais restent face cachée à l'écran.
     setOpened(cards);
-    setRevealed(0);
+    setFlipped(new Set());
+  };
 
-    cards.forEach((_, index) => {
-      window.setTimeout(() => {
-        setRevealed(index + 1);
-        if (index === cards.length - 1) setBusy(false);
-      }, 380 * (index + 1));
+  const flip = (index: number) => {
+    setFlipped((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
+      return next;
     });
+  };
 
-    const best = cards.reduce((a, b) =>
-      RARITIES.indexOf(b.rarity) > RARITIES.indexOf(a.rarity) ? b : a,
-    );
-    if (["ultra-rare", "legendaire"].includes(best.rarity)) {
-      window.setTimeout(
-        () => toast.success(`${RARITY_MAP[best.rarity].label} : ${best.name} !`),
-        380 * cards.length + 200,
-      );
-    }
+  const flipAll = () => {
+    opened.forEach((_, index) => {
+      window.setTimeout(() => flip(index), index * FLIP_STAGGER_MS);
+    });
+  };
+
+  const openCard = (card: CardType) => {
+    const existing = (location.state as { backgroundLocation?: unknown } | null)?.backgroundLocation;
+    navigate(`/carte/${card.slug}`, { state: { backgroundLocation: existing ?? location } });
   };
 
   return (
@@ -98,7 +104,9 @@ export function PacksPage() {
                   <div
                     className={cn(
                       "grid size-12 shrink-0 place-items-center rounded-xl",
-                      full ? "bg-[oklch(0.82_0.15_85/0.18)] text-[var(--gold)]" : "bg-primary/15 text-primary",
+                      full
+                        ? "bg-[oklch(0.82_0.15_85/0.18)] text-[var(--gold)]"
+                        : "bg-primary/15 text-primary",
                     )}
                   >
                     <Package className="size-6" />
@@ -132,7 +140,6 @@ export function PacksPage() {
                 )}
               </div>
 
-              {/* Dix emplacements */}
               <div className="flex flex-wrap items-center gap-1.5">
                 {Array.from({ length: PACK_RESERVE_MAX }).map((_, index) => (
                   <span
@@ -167,7 +174,7 @@ export function PacksPage() {
           </Card>
 
           {/* Zone d'ouverture */}
-          <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-[oklch(0.26_0.04_258)] via-[oklch(0.21_0.03_258)] to-[oklch(0.19_0.03_258)] p-6 sm:p-8">
+          <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-[oklch(0.26_0.04_258)] via-[oklch(0.21_0.03_258)] to-[oklch(0.19_0.03_258)] p-5 sm:p-8">
             <div className="bg-grid absolute inset-0 opacity-20" />
 
             {opened.length === 0 ? (
@@ -184,12 +191,12 @@ export function PacksPage() {
                   </h2>
                   <p className="text-muted-foreground mx-auto max-w-md text-sm">
                     {packsReady > 0
-                      ? "Cinq fiches, révélées de la plus commune à la plus rare."
+                      ? "Cinq fiches, face cachée. À vous de les retourner."
                       : `Le prochain arrive dans ${formatCountdown(remaining)}. Vous pouvez quitter la page, il vous attendra.`}
                   </p>
                 </div>
 
-                <Button size="lg" variant="gold" onClick={handleOpen} disabled={busy || packsReady <= 0}>
+                <Button size="lg" variant="gold" onClick={handleOpen} disabled={packsReady <= 0}>
                   <PackageOpen className="size-4" /> Ouvrir un paquet
                 </Button>
 
@@ -201,20 +208,18 @@ export function PacksPage() {
             ) : (
               <div className="relative space-y-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="font-display text-lg font-semibold">
-                    {revealed < opened.length ? "Révélation…" : "Butin du paquet"}
-                  </h2>
+                  <div>
+                    <h2 className="font-display text-lg font-semibold">
+                      {allFlipped ? "Vos cinq fiches" : "Retournez vos cartes"}
+                    </h2>
+                    <p className="text-muted-foreground text-[11px]">
+                      {flipped.size} / {opened.length} retournée{flipped.size > 1 ? "s" : ""}
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2">
-                    {revealed < opened.length && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setRevealed(opened.length);
-                          setBusy(false);
-                        }}
-                      >
-                        <Wand2 className="size-3.5" /> Tout révéler
+                    {!allFlipped && (
+                      <Button variant="outline" size="sm" onClick={flipAll}>
+                        <Wand2 className="size-3.5" /> Tout retourner
                       </Button>
                     )}
                     <Button
@@ -222,7 +227,7 @@ export function PacksPage() {
                       size="sm"
                       onClick={() => {
                         setOpened([]);
-                        setRevealed(0);
+                        setFlipped(new Set());
                       }}
                     >
                       <RotateCcw className="size-3.5" /> Terminer
@@ -232,48 +237,78 @@ export function PacksPage() {
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                   {opened.map((card, index) => {
-                    const isRevealed = index < revealed;
+                    const isFlipped = flipped.has(index);
                     const accent = RARITY_MAP[card.rarity].accent;
+
                     return (
                       <div
                         key={`${card.id}-${index}`}
-                        className={cn(
-                          "relative overflow-hidden rounded-xl border transition-all duration-500",
-                          isRevealed
-                            ? "animate-rise-in opacity-100"
-                            : "scale-95 border-dashed opacity-40",
-                        )}
-                        style={{
-                          borderColor: isRevealed
-                            ? `color-mix(in oklch, ${accent} 55%, transparent)`
-                            : undefined,
-                          boxShadow: isRevealed
-                            ? `0 0 26px -8px color-mix(in oklch, ${accent} 65%, transparent)`
-                            : undefined,
-                        }}
+                        className="[perspective:1200px]"
+                        style={{ aspectRatio: "3 / 4.3" }}
                       >
-                        {isRevealed ? (
-                          <CardLink slug={card.slug} className="block">
-                            <CardArt card={card} className="h-28" glyphClassName="size-10" />
-                            <div className="space-y-1 p-2">
+                        <button
+                          type="button"
+                          onClick={() => (isFlipped ? openCard(card) : flip(index))}
+                          aria-label={
+                            isFlipped ? `Ouvrir la fiche ${card.name}` : "Retourner cette carte"
+                          }
+                          className={cn(
+                            "relative size-full rounded-xl border transition-transform duration-700 ease-out [transform-style:preserve-3d]",
+                            "focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none",
+                          )}
+                          style={{
+                            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                            borderColor: isFlipped
+                              ? `color-mix(in oklch, ${accent} 55%, transparent)`
+                              : "color-mix(in oklch, var(--border) 80%, transparent)",
+                            boxShadow: isFlipped
+                              ? `0 0 30px -10px color-mix(in oklch, ${accent} 70%, transparent)`
+                              : undefined,
+                          }}
+                        >
+                          {/* Dos */}
+                          <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-br from-[oklch(0.3_0.03_258)] to-[oklch(0.2_0.03_258)] [backface-visibility:hidden]">
+                            <span className="bg-grid pointer-events-none absolute inset-0 opacity-25" />
+                            <img
+                              src="/logo_wikitcg_back-card.png"
+                              alt=""
+                              width={48}
+                              height={48}
+                              className="size-12 rounded-lg opacity-70"
+                            />
+                            <span className="text-muted-foreground font-display text-[9px] tracking-[0.2em] uppercase">
+                              WikiTCG
+                            </span>
+                            <span className="text-muted-foreground/50 absolute bottom-2 text-[8px]">
+                              cliquez pour retourner
+                            </span>
+                          </span>
+
+                          {/* Face */}
+                          <span className="absolute inset-0 flex flex-col overflow-hidden rounded-xl bg-card [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                            <WikiPhoto
+                              card={card}
+                              className="h-[60%] w-full"
+                              glyphClassName="size-10"
+                              lazy={false}
+                            />
+                            <span className="flex flex-1 flex-col gap-1 p-2">
                               <RarityBadge rarity={card.rarity} />
-                              <p className="truncate text-xs font-semibold">{card.name}</p>
-                              <p className="text-muted-foreground truncate text-[10px]">
-                                {card.era}
-                              </p>
-                            </div>
-                          </CardLink>
-                        ) : (
-                          <div className="grid h-full min-h-[168px] place-items-center">
-                            <Sparkles className="text-muted-foreground/50 size-6 animate-pulse" />
-                          </div>
-                        )}
+                              <span className="line-clamp-2 text-xs leading-tight font-semibold">
+                                {card.name}
+                              </span>
+                              <span className="text-muted-foreground mt-auto flex items-center gap-1 text-[9px]">
+                                <ExternalLink className="size-2.5" /> voir la fiche
+                              </span>
+                            </span>
+                          </span>
+                        </button>
                       </div>
                     );
                   })}
                 </div>
 
-                {revealed >= opened.length && (
+                {allFlipped && (
                   <div className="flex flex-wrap items-center gap-2 border-t pt-4">
                     <Button variant="gold" onClick={handleOpen} disabled={packsReady <= 0}>
                       <PackageOpen className="size-4" /> Ouvrir un autre ({packsReady})
@@ -327,27 +362,6 @@ export function PacksPage() {
               <p className="text-muted-foreground text-[11px] leading-relaxed">
                 Il n'existe qu'une seule façon d'ouvrir un paquet : attendre. Aucun paquet ne
                 s'achète.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/60">
-            <CardHeader>
-              <CardTitle className="font-display text-sm">Comment ça marche</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-xs leading-relaxed text-muted-foreground">
-              <p>
-                <span className="text-foreground font-medium">Un paquet toutes les 10 minutes.</span>{" "}
-                Tant que la réserve n'est pas pleine, le minuteur tourne.
-              </p>
-              <p>
-                <span className="text-foreground font-medium">Jusqu'à 10 en réserve.</span> Vous
-                pouvez laisser passer une nuit : vous ne perdrez rien, mais vous n'aurez jamais plus
-                de 10.
-              </p>
-              <p>
-                <span className="text-foreground font-medium">Réserve pleine : plus de minuteur.</span>{" "}
-                Ouvrez un paquet pour libérer une place et relancer le décompte.
               </p>
             </CardContent>
           </Card>
