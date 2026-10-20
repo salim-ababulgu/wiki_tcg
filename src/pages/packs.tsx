@@ -275,11 +275,21 @@ export function PacksPage() {
                   >
                     <PackageOpen className="size-4" /> Paquet suivant ({packsReady})
                   </Button>
-                  <Button asChild variant="outline">
-                    <Link to="/collection">
+                  {allFlipped ? (
+                    <Button asChild variant="outline">
+                      <Link to="/collection">
+                        <CheckCircle2 className="size-4" /> Ranger dans ma collection
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      disabled
+                      title="Retournez toutes les cartes pour continuer"
+                    >
                       <CheckCircle2 className="size-4" /> Ranger dans ma collection
-                    </Link>
-                  </Button>
+                    </Button>
+                  )}
                   <span className="text-muted-foreground ml-auto text-[11px]">
                     {allFlipped
                       ? "Les cinq cartes sont déjà dans votre collection."
