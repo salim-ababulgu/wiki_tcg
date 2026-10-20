@@ -20,15 +20,23 @@ export function WikiPhoto({
   className,
   glyphClassName,
   lazy = true,
+  blurred = false,
+  revealable = true,
 }: {
   card: Card;
   className?: string;
   glyphClassName?: string;
   lazy?: boolean;
+  /** Image masquée pour les profils protégés (mineur, mode streamer). */
+  blurred?: boolean;
+  /** false = le masque ne peut pas être levé (compte mineur). */
+  revealable?: boolean;
 }) {
   const { ref, inView } = useInView<HTMLDivElement>();
   const { data } = useWikiSummary(card.sourceTitle, lazy ? inView : true);
   const [broken, setBroken] = React.useState(false);
+  const [revealed, setRevealed] = React.useState(false);
+  const hide = blurred && !revealed;
 
   const showPhoto = Boolean(data?.image) && !broken;
 
@@ -41,10 +49,33 @@ export function WikiPhoto({
           loading="lazy"
           decoding="async"
           onError={() => setBroken(true)}
-          className="size-full object-cover"
+          className={cn("size-full object-cover", hide && "blur-2xl scale-110")}
         />
       ) : (
         <CardArt card={card} className="size-full" glyphClassName={glyphClassName} />
+      )}
+      {hide && revealable && (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setRevealed(true);
+          }}
+          className="absolute inset-0 grid place-items-center bg-background/40 backdrop-blur-xl"
+          title="Image masquée — cliquez pour l'afficher"
+        >
+          <span className="rounded-full border bg-background/70 px-2 py-1 text-[10px] font-medium">
+            Image masquée
+          </span>
+        </button>
+      )}
+      {hide && !revealable && (
+        <div className="absolute inset-0 grid place-items-center bg-background/40 backdrop-blur-xl">
+          <span className="rounded-full border bg-background/70 px-2 py-1 text-[10px] font-medium">
+            Image masquée
+          </span>
+        </div>
       )}
     </div>
   );

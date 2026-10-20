@@ -10,8 +10,6 @@ import { HomePage } from "@/pages/home";
 import { ExplorePage } from "@/pages/explore";
 import { CardDetailModal, CardDetailPage } from "@/pages/card-detail";
 import { CollectionPage } from "@/pages/collection";
-import { SeriesPage } from "@/pages/series";
-import { SeriesDetailPage } from "@/pages/series-detail";
 import { PacksPage } from "@/pages/packs";
 import { DuelPage } from "@/pages/duel";
 import { LeaderboardPage } from "@/pages/leaderboard";
@@ -56,8 +54,6 @@ function AppRoutes() {
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
             <Route path="/collection" element={<CollectionPage />} />
-            <Route path="/series" element={<SeriesPage />} />
-            <Route path="/serie/:slug" element={<SeriesDetailPage />} />
             <Route path="/paquets" element={<PacksPage />} />
             <Route path="/duels" element={<DuelPage />} />
             <Route path="/classement" element={<LeaderboardPage />} />

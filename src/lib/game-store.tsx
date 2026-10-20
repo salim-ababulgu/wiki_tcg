@@ -23,6 +23,10 @@ type GameState = {
   nextPackAt: number;
   /** Abonnement « temps » : simulé, change seulement le rythme des paquets. */
   pro: boolean;
+  /** Joueur de moins de 18 ans : les images sensibles sont floutées, sans recours. */
+  minor: boolean;
+  /** Mode streamer : mêmes images floutées, mais dévoilables au clic. */
+  streamer: boolean;
   ready: boolean;
 };
 
@@ -37,6 +41,8 @@ type GameContextValue = GameState & {
   signIn: (email: string, displayName?: string) => void;
   signOut: () => void;
   setPro: (value: boolean) => void;
+  setMinor: (value: boolean) => void;
+  setStreamer: (value: boolean) => void;
   /** Rythme actuel, en millisecondes. */
   interval: number;
   theme: "dark" | "light";
@@ -117,6 +123,8 @@ function createInitialState(): GameState {
     packsReady: 0,
     nextPackAt: 0,
     pro: false,
+    minor: false,
+    streamer: false,
     ready: false,
   };
 }
@@ -328,6 +336,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setMinor = React.useCallback((value: boolean) => {
+    setState((prev) => ({ ...prev, minor: value }));
+  }, []);
+
+  const setStreamer = React.useCallback((value: boolean) => {
+    setState((prev) => ({ ...prev, streamer: value }));
+  }, []);
+
   const resetProgress = React.useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setState({ ...createInitialState(), ready: true });
@@ -345,6 +361,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signOut,
     setPro,
+    setMinor,
+    setStreamer,
     theme,
     toggleTheme,
     resetProgress,

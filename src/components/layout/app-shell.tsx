@@ -5,7 +5,6 @@ import {
   Flame,
   Home,
   LayoutGrid,
-  Layers,
   Menu,
   Moon,
   Package,
@@ -39,7 +38,6 @@ const NAV = [
       { to: "/paquets", label: "Paquets", icon: Package },
       { to: "/duels", label: "Duels", icon: Swords },
       { to: "/collection", label: "Ma collection", icon: LayoutGrid },
-      { to: "/series", label: "Séries", icon: Layers },
     ],
   },
   {

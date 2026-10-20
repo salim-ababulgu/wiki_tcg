@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Check, Coins } from "lucide-react";
 import { WikiPhoto } from "@/components/wiki-photo";
+import { useGame } from "@/lib/game-store";
 import { RarityBadge } from "@/components/rarity-badge";
 import { RARITY_MAP, type Card } from "@/lib/types";
 import { cn, formatNumber } from "@/lib/utils";
@@ -18,6 +19,7 @@ export function CardTile({
 }) {
   const accent = RARITY_MAP[card.rarity].accent;
   const location = useLocation();
+  const { minor, streamer } = useGame();
 
   return (
     <Link
@@ -43,6 +45,8 @@ export function CardTile({
       <div className="relative">
         <WikiPhoto
           card={card}
+          blurred={card.sensitive && (minor || streamer)}
+          revealable={!minor}
           className={compact ? "h-32" : "h-44"}
           glyphClassName={compact ? "size-10" : "size-14"}
         />

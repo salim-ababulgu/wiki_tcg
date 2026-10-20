@@ -1,6 +1,7 @@
 import { RARITIES, RARITY_MAP, type Card, type Category, type Rarity } from "@/lib/types";
 import { unit } from "@/lib/utils";
 import generatedCatalog from "./catalog.generated.json";
+import { isSensitive } from "@/lib/content-filter";
 
 /**
  * Jeu de données de démonstration entièrement original : les fiches sont rédigées
@@ -257,6 +258,7 @@ const EDITORIAL_CARDS: Card[] = SEEDS.map((seed, index) => {
     tags: [category.toLowerCase(), era.toLowerCase(), origin.toLowerCase()],
     facts: [fact1, fact2],
     sourceTitle: SOURCE_TITLES[slug] ?? name,
+    sensitive: isSensitive(name, blurb, fact1, fact2),
   };
 });
 
@@ -338,6 +340,7 @@ function toCard(entry: GeneratedEntry): Card {
     tags: [(entry.set ?? DEFAULT_SET).toLowerCase(), "wikipédia"],
     facts: [],
     sourceTitle: entry.sourceTitle,
+    sensitive: isSensitive(entry.name, entry.blurb),
   };
 }
 

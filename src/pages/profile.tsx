@@ -42,8 +42,20 @@ const BADGES = [
 ];
 
 export function ProfilePage() {
-  const { profile, collection, toggleTheme, theme, resetProgress, signOut, pro, setPro, packsReady } =
-    useGame();
+  const {
+    profile,
+    collection,
+    toggleTheme,
+    theme,
+    resetProgress,
+    signOut,
+    pro,
+    setPro,
+    packsReady,
+    minor,
+    streamer,
+    setStreamer,
+  } = useGame();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = React.useState(profile.displayName);
 
@@ -264,6 +276,23 @@ export function ProfilePage() {
                 <CardTitle className="font-display text-sm">Préférences</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm">Mode streamer</p>
+                    <p className="text-muted-foreground text-[11px]">
+                      Floute les images des fiches sensibles. Le texte reste lisible, et vous
+                      pouvez dévoiler une image d'un clic.
+                    </p>
+                  </div>
+                  <Switch checked={streamer} onCheckedChange={setStreamer} />
+                </div>
+                {minor && (
+                  <p className="text-muted-foreground rounded-md border border-dashed px-2 py-1.5 text-[11px]">
+                    Compte de moins de 18 ans : les images sensibles restent floutées.
+
+                  </p>
+                )}
+                <Separator />
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm">Thème sombre</p>

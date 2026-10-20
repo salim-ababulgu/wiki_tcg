@@ -108,6 +108,8 @@ export type Card = {
   tags: string[];
   /** Citations / renvois affichés dans la fiche. */
   facts: string[];
+  /** Fiche jugée sensible : l'image sera floutée selon le profil du joueur. */
+  sensitive: boolean;
   /** Titre de l'article Wikipédia correspondant (source de l'image et du résumé). */
   sourceTitle: string;
 };

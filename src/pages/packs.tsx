@@ -33,7 +33,8 @@ import { cn } from "@/lib/utils";
 const FLIP_STAGGER_MS = 150;
 
 export function PacksPage() {
-  const { openPack, collection, packsReady, nextPackAt, pro, interval, profile } = useGame();
+  const { openPack, collection, packsReady, nextPackAt, pro, interval, profile, minor, streamer } =
+    useGame();
   const now = useNow(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -288,6 +289,8 @@ export function PacksPage() {
                           <span className="absolute inset-0 flex flex-col overflow-hidden rounded-xl bg-card [backface-visibility:hidden] [transform:rotateY(180deg)]">
                             <WikiPhoto
                               card={card}
+                              blurred={card.sensitive && (minor || streamer)}
+                              revealable={!minor}
                               className="h-[60%] w-full"
                               glyphClassName="size-10"
                               lazy={false}

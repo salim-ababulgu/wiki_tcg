@@ -67,10 +67,11 @@ function Showcase() {
 export function AuthPage({ mode }: { mode: "login" | "signup" }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, signedIn } = useGame();
+  const { signIn, signedIn, setMinor } = useGame();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [pseudo, setPseudo] = React.useState("");
+  const [birthYear, setBirthYear] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
 
   const from = (location.state as { from?: string } | null)?.from ?? "/collection";
@@ -88,8 +89,19 @@ export function AuthPage({ mode }: { mode: "login" | "signup" }) {
       setError("Le mot de passe doit contenir au moins 6 caractères.");
       return;
     }
+    let tooYoung = false;
+    if (mode === "signup") {
+      const year = Number(birthYear);
+      const currentYear = new Date().getFullYear();
+      if (!year || year < currentYear - 110 || year > currentYear) {
+        setError("Indiquez une année de naissance valide : elle détermine l'affichage des images sensibles.");
+        return;
+      }
+      tooYoung = currentYear - year < 18;
+    }
     setError(null);
     signIn(email, mode === "signup" ? pseudo || "Collectionneur" : "Salim");
+    if (mode === "signup") setMinor(tooYoung);
     toast.success(mode === "signup" ? "Compte créé — bonne collection !" : "Bon retour parmi nous.");
     navigate(from, { replace: true });
   };
@@ -126,6 +138,26 @@ export function AuthPage({ mode }: { mode: "login" | "signup" }) {
                     placeholder="Collectionneur"
                     autoComplete="nickname"
                   />
+                </div>
+              )}
+
+              {mode === "signup" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="birthyear">Année de naissance</Label>
+                  <Input
+                    id="birthyear"
+                    type="number"
+                    inputMode="numeric"
+                    value={birthYear}
+                    onChange={(event) => setBirthYear(event.target.value)}
+                    placeholder="1998"
+                    min={1900}
+                    max={new Date().getFullYear()}
+                  />
+                  <p className="text-muted-foreground text-[11px] leading-relaxed">
+                    Moins de 18 ans : les images des fiches sensibles sont floutées. Le texte reste
+                    entièrement lisible.
+                  </p>
                 </div>
               )}
 

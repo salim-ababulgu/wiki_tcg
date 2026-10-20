@@ -35,7 +35,8 @@ import { NotFoundPage } from "@/pages/not-found";
 
 /** Contenu de la fiche, partagé par la page et par la fenêtre modale. */
 function CardDetailBody({ card }: { card: CardType }) {
-  const { profile, owns, buyCard, wishlist, toggleWishlist, collection, signedIn } = useGame();
+  const { profile, owns, buyCard, wishlist, toggleWishlist, collection, signedIn, minor, streamer } =
+    useGame();
   const wiki = useWikiSummary(card.sourceTitle);
 
   const info = RARITY_MAP[card.rarity];
@@ -66,7 +67,14 @@ function CardDetailBody({ card }: { card: CardType }) {
           className="card-shine overflow-hidden rounded-2xl border bg-card shadow-[0_30px_70px_-30px_rgba(0,0,0,0.9)]"
           style={{ borderColor: `color-mix(in oklch, ${info.accent} 40%, var(--border))` }}
         >
-          <WikiPhoto card={card} className="h-56 sm:h-64" glyphClassName="size-24" lazy={false} />
+          <WikiPhoto
+            card={card}
+            className="h-56 sm:h-64"
+            glyphClassName="size-24"
+            lazy={false}
+            blurred={card.sensitive && (minor || streamer)}
+            revealable={!minor}
+          />
           <div className="space-y-3 p-4">
             <div className="flex items-center justify-between">
               <RarityBadge rarity={card.rarity} withLabel />

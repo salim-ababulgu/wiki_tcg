@@ -43,13 +43,6 @@ const STEPS = [
   },
 ];
 
-const SERIES_TEASER = SETS.map((set) => {
-  const cards = CARDS.filter((card) => card.set === set);
-  const rarest = [...cards].sort(
-    (a, b) => RARITIES.indexOf(b.rarity) - RARITIES.indexOf(a.rarity),
-  )[0];
-  return { set, count: cards.length, rarest };
-});
 
 export function HomePage() {
   return (
@@ -217,40 +210,6 @@ export function HomePage() {
               </div>
             );
           })}
-        </div>
-      </section>
-
-      {/* ——— Séries ——— */}
-      <section className="space-y-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="font-display text-xl font-semibold">Les séries à compléter</h2>
-            <p className="text-muted-foreground text-sm">
-              Sept éditions à réunir intégralement. Chacune met en avant une pièce maîtresse.
-            </p>
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {SERIES_TEASER.map(({ set, count, rarest }) => (
-            <Link
-              key={set}
-              to={`/explorer?edition=${encodeURIComponent(set)}`}
-              className="group flex items-center gap-3 rounded-xl border bg-card/60 p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
-            >
-              <CardArt
-                card={rarest}
-                className="size-12 shrink-0 rounded-lg"
-                glyphClassName="size-5"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{set}</p>
-                <p className="text-muted-foreground text-[11px]">
-                  {count} fiches · jusqu'à {RARITY_MAP[rarest.rarity].label.toLowerCase()}
-                </p>
-              </div>
-              <ArrowRight className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          ))}
         </div>
       </section>
 
