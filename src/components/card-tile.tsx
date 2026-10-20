@@ -65,8 +65,12 @@ export function CardTile({
       <div className="relative flex flex-1 flex-col gap-1.5 p-3">
         <div className="text-muted-foreground flex items-center gap-1.5 text-[10px] font-medium tracking-wide uppercase">
           <span>{card.category}</span>
-          <span className="opacity-40">•</span>
-          <span>{card.era}</span>
+          {card.era && (
+            <>
+              <span className="opacity-40">•</span>
+              <span>{card.era}</span>
+            </>
+          )}
         </div>
         <h3 className="font-display text-[15px] leading-tight font-semibold text-balance">
           {card.name}

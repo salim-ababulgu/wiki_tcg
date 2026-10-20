@@ -79,14 +79,18 @@ function CardDetailBody({ card }: { card: CardType }) {
               <p className="text-muted-foreground mt-1 text-sm">{card.blurb}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 border-t pt-3 text-xs">
-              <div className="flex items-center gap-1.5">
-                <Globe2 className="text-muted-foreground size-3.5" />
-                <span className="truncate">{card.origin}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CalendarDays className="text-muted-foreground size-3.5" />
-                <span className="truncate">{card.era}</span>
-              </div>
+              {card.origin && (
+                <div className="flex items-center gap-1.5">
+                  <Globe2 className="text-muted-foreground size-3.5" />
+                  <span className="truncate">{card.origin}</span>
+                </div>
+              )}
+              {card.era && (
+                <div className="flex items-center gap-1.5">
+                  <CalendarDays className="text-muted-foreground size-3.5" />
+                  <span className="truncate">{card.era}</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5">
                 <Hash className="text-muted-foreground size-3.5" />
                 <span className="truncate">{card.category}</span>

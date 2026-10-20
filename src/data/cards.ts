@@ -1,5 +1,6 @@
 import { RARITIES, RARITY_MAP, type Card, type Category, type Rarity } from "@/lib/types";
 import { unit } from "@/lib/utils";
+import generatedCatalog from "./catalog.generated.json";
 
 /**
  * Jeu de données de démonstration entièrement original : les fiches sont rédigées
@@ -229,7 +230,7 @@ const SOURCE_TITLES: Record<string, string> = {
   atlantide: "Atlantide",
 };
 
-export const CARDS: Card[] = SEEDS.map((seed, index) => {
+const EDITORIAL_CARDS: Card[] = SEEDS.map((seed, index) => {
   const [slug, name, category, rarity, era, origin, blurb, fact1, fact2] = seed;
   const info = RARITY_MAP[rarity];
   const value = Math.round((info.baseValue * (0.85 + unit(slug, "value") * 0.45)) / 10) * 10;
@@ -257,6 +258,95 @@ export const CARDS: Card[] = SEEDS.map((seed, index) => {
     sourceTitle: SOURCE_TITLES[slug] ?? name,
   };
 });
+
+
+/* ————————————————————————————————————————————————————————————————
+   Cartes générées depuis Wikipédia (scripts/generate-catalog.mjs).
+   La rareté y est déduite du rang de consultation de l'article, pas inventée.
+   En cas de doublon d'article, la fiche éditoriale l'emporte : son texte est
+   écrit pour le jeu.
+   ———————————————————————————————————————————————————————————————— */
+
+type GeneratedEntry = {
+  slug: string;
+  name: string;
+  sourceTitle: string;
+  set: string;
+  rarity: Rarity;
+  blurb: string;
+  lore: string;
+  image: string | null;
+  views: number;
+};
+
+const CATEGORY_BY_SET: Record<string, Category> = {
+  "Mondes vivants": "Animaux",
+  "Lumière & métal": "Sciences",
+  "Pierres & empires": "Histoire",
+  "Ateliers & scènes": "Arts",
+  "Cartes du monde": "Lieux",
+  "Machines & signaux": "Techniques",
+  "Rêves & récits": "Recits",
+};
+
+const generatedEntries = (generatedCatalog as GeneratedEntry[]).filter(
+  (entry) => CATEGORY_BY_SET[entry.set] !== undefined,
+);
+
+const views = generatedEntries.map((entry) => entry.views);
+const viewsMax = Math.max(...views, 1);
+
+/** Plus l'article est consulté, plus la carte est forte. Simple et défendable. */
+function statFromViews(value: number, slug: string, salt: string): number {
+  const ratio =
+    Math.log10(value + 1) / Math.log10(viewsMax + 1 || 1);
+  const base = 32 + ratio * 55;
+  return Math.max(20, Math.min(96, Math.round(base + (unit(slug, salt) * 10 - 5))));
+}
+
+function toCard(entry: GeneratedEntry): Card {
+  const info = RARITY_MAP[entry.rarity];
+  const value = Math.round((info.baseValue * (0.85 + unit(entry.slug, "value") * 0.45)) / 10) * 10;
+
+  return {
+    id: `card_${entry.slug}`,
+    slug: entry.slug,
+    name: entry.name,
+    category: CATEGORY_BY_SET[entry.set],
+    rarity: entry.rarity,
+    set: entry.set,
+    era: "",
+    origin: "",
+    blurb: entry.blurb,
+    lore: entry.lore,
+    stats: {
+      savoir: statFromViews(entry.views, entry.slug, "savoir"),
+      influence: statFromViews(entry.views, entry.slug, "influence"),
+      singularite: statFromViews(entry.views, entry.slug, "singularite"),
+    },
+    value,
+    number: "",
+    tags: [entry.set.toLowerCase(), "wikipédia"],
+    facts: [],
+    sourceTitle: entry.sourceTitle,
+  };
+}
+
+const merged = new Map<string, Card>();
+for (const card of EDITORIAL_CARDS) merged.set(card.slug, card);
+for (const entry of generatedEntries) {
+  if (!merged.has(entry.slug)) merged.set(entry.slug, toCard(entry));
+}
+
+const ordered = [...merged.values()].sort(
+  (a, b) => a.set.localeCompare(b.set, "fr") || a.name.localeCompare(b.name, "fr"),
+);
+
+/** Catalogue complet : fiches éditoriales + fiches générées depuis Wikipédia. */
+export const CARDS: Card[] = ordered.map((card, index, list) => ({
+  ...card,
+  number: `${String(index + 1).padStart(3, "0")} / ${String(list.length).padStart(3, "0")}`,
+}));
 
 export const CARD_BY_SLUG = new Map(CARDS.map((card) => [card.slug, card]));
 export const CARD_BY_ID = new Map(CARDS.map((card) => [card.id, card]));
