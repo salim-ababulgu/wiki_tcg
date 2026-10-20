@@ -46,6 +46,7 @@ export function ExplorePage() {
 
   const update = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
+    if (key !== "page") next.delete("page");
     if (value === null || value === "" || value === "toutes" || value === "0") next.delete(key);
     else next.set(key, value);
     setParams(next, { replace: true });
@@ -89,6 +90,26 @@ export function ExplorePage() {
 
     return list;
   }, [query, selectedRarities, category, setFilter, ownedOnly, sort, ownedIds]);
+
+  const PAGE_SIZE = 24;
+  const requestedPage = Number(params.get("page") ?? "1");
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(
+    Math.max(1, Number.isFinite(requestedPage) ? Math.floor(requestedPage) : 1),
+    pageCount,
+  );
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const firstShown = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const lastShown = Math.min(currentPage * PAGE_SIZE, filtered.length);
+
+  const goToPage = (page: number) => {
+    const target = Math.min(Math.max(1, page), pageCount);
+    const next = new URLSearchParams(params);
+    if (target === 1) next.delete("page");
+    else next.set("page", String(target));
+    setParams(next, { replace: true });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const activeFilters = selectedRarities.length + (category !== "toutes" ? 1 : 0) +
     (setFilter !== "toutes" ? 1 : 0) + (ownedOnly ? 1 : 0);
@@ -313,7 +334,7 @@ export function ExplorePage() {
                   : "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4",
               )}
             >
-              {filtered.map((card) => (
+              {paged.map((card) => (
                 <CardTile
                   key={card.id}
                   card={card}
@@ -321,6 +342,56 @@ export function ExplorePage() {
                   owned={signedIn && ownedIds.has(card.id)}
                 />
               ))}
+            </div>
+          )}
+
+
+          {/* Pagination : on n'affiche que 24 cartes à la fois */}
+          {filtered.length > PAGE_SIZE && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+              <p className="text-muted-foreground text-xs tabular-nums">
+                Cartes {firstShown} à {lastShown} sur {filtered.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Précédent
+                </Button>
+                <div className="flex items-center gap-1 px-1">
+                  {Array.from({ length: Math.min(7, pageCount) }).map((_, index) => {
+                    // Fenêtre glissante autour de la page courante
+                    const half = 3;
+                    let start = Math.max(1, currentPage - half);
+                    if (start + 6 > pageCount) start = Math.max(1, pageCount - 6);
+                    const page = start + index;
+                    if (page > pageCount) return null;
+                    return (
+                      <Button
+                        key={page}
+                        variant={page === currentPage ? "secondary" : "ghost"}
+                        size="icon-sm"
+                        className="text-xs tabular-nums"
+                        onClick={() => goToPage(page)}
+                        aria-current={page === currentPage ? "page" : undefined}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === pageCount}
+                >
+                  Suivant
+                </Button>
+              </div>
             </div>
           )}
 
