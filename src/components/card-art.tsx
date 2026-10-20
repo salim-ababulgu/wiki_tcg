@@ -1,5 +1,6 @@
 import {
   Atom,
+  Sparkles,
   BookOpen,
   Cog,
   Landmark,
@@ -20,6 +21,7 @@ export const CATEGORY_ICONS: Record<Category, LucideIcon> = {
   Lieux: Mountain,
   Techniques: Cog,
   Recits: BookOpen,
+  Divers: Sparkles,
 };
 
 /**

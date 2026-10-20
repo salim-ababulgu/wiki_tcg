@@ -177,6 +177,7 @@ const SET_BY_CATEGORY: Record<Category, string> = {
   Lieux: "Cartes du monde",
   Techniques: "Machines & signaux",
   Recits: "Rêves & récits",
+  Divers: "Catalogue général",
 };
 
 /**
@@ -271,7 +272,7 @@ type GeneratedEntry = {
   slug: string;
   name: string;
   sourceTitle: string;
-  set: string;
+  set?: string;
   rarity: Rarity;
   blurb: string;
   lore: string;
@@ -289,8 +290,16 @@ const CATEGORY_BY_SET: Record<string, Category> = {
   "Rêves & récits": "Recits",
 };
 
+const DEFAULT_SET = "Catalogue général";
+const DEFAULT_CATEGORY: Category = "Divers";
+
+/** Les cartes issues des articles les plus lus n'ont pas de thème éditorial. */
+function categoryOf(set?: string): Category {
+  return (set && CATEGORY_BY_SET[set]) || DEFAULT_CATEGORY;
+}
+
 const generatedEntries = (generatedCatalog as GeneratedEntry[]).filter(
-  (entry) => CATEGORY_BY_SET[entry.set] !== undefined,
+  (entry) => Boolean(entry.slug) && Boolean(entry.name),
 );
 
 const views = generatedEntries.map((entry) => entry.views);
@@ -312,9 +321,9 @@ function toCard(entry: GeneratedEntry): Card {
     id: `card_${entry.slug}`,
     slug: entry.slug,
     name: entry.name,
-    category: CATEGORY_BY_SET[entry.set],
+    category: categoryOf(entry.set),
     rarity: entry.rarity,
-    set: entry.set,
+    set: entry.set ?? DEFAULT_SET,
     era: "",
     origin: "",
     blurb: entry.blurb,
@@ -326,7 +335,7 @@ function toCard(entry: GeneratedEntry): Card {
     },
     value,
     number: "",
-    tags: [entry.set.toLowerCase(), "wikipédia"],
+    tags: [(entry.set ?? DEFAULT_SET).toLowerCase(), "wikipédia"],
     facts: [],
     sourceTitle: entry.sourceTitle,
   };
