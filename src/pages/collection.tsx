@@ -9,7 +9,6 @@ import {
   Package,
   Search,
   Sparkles,
-  TrendingUp,
   X,
 } from "lucide-react";
 import { CardArt } from "@/components/card-art";
@@ -18,9 +17,7 @@ import { PageHeader } from "@/components/page-header";
 import { RarityBadge } from "@/components/rarity-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { CARDS, CARD_BY_ID, RARITY_COUNTS } from "@/data/cards";
 import { useGame } from "@/lib/game-store";
 import { RARITIES, RARITY_MAP, type Card as CardType, type Rarity } from "@/lib/types";
@@ -67,7 +64,12 @@ export function CollectionPage() {
     return sum + (card?.value ?? 0);
   }, 0);
 
-  const completion = Math.round((ownedCards.length / CARDS.length) * 100);
+  const rawCompletion = (ownedCards.length / CARDS.length) * 100;
+  // Sous 1 %, afficher 0 % donnerait l'impression que rien n'a été trouvé.
+  const completion =
+    rawCompletion < 1 && rawCompletion > 0
+      ? rawCompletion.toFixed(1).replace(".", ",")
+      : String(Math.round(rawCompletion));
 
   // Le contenu de l'onglet, avant recherche et filtres.
   const scope = React.useMemo(() => {
@@ -110,79 +112,101 @@ export function CollectionPage() {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Ma collection"
-        title="Mon album"
+        eyebrow="Collection"
+        title="Collection"
         description={`${plural(ownedCards.length, "fiche trouvée", "fiches trouvées")} sur ${CARDS.length}. Les cartes que vous ne possédez pas encore restent visibles, en attente d'être découvertes.`}
         actions={
-          <Button asChild>
-            <Link to="/paquets">
-              <Package className="size-4" /> Ouvrir un paquet
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={tab === "possedees" ? "secondary" : "outline"}
+              onClick={() => setTab("possedees")}
+            >
+              <CheckCircle2 className="size-4" /> Ma collection
+            </Button>
+            <Button asChild>
+              <Link to="/paquets">
+                <Package className="size-4" /> Ouvrir un paquet
+              </Link>
+            </Button>
+          </div>
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card/60 py-3">
-          <CardContent className="space-y-1">
-            <p className="text-muted-foreground text-[11px] tracking-wide uppercase">Progression</p>
-            <p className="font-display text-2xl font-bold tabular-nums">{completion}%</p>
-            <Progress value={completion} className="mt-1 h-1.5" />
-          </CardContent>
-        </Card>
-        <Card className="bg-card/60 py-3">
-          <CardContent className="space-y-1">
-            <p className="text-muted-foreground text-[11px] tracking-wide uppercase">Valeur</p>
-            <p className="font-display flex items-center gap-1.5 text-2xl font-bold tabular-nums">
-              <Coins className="size-4 text-[var(--gold)]" />
-              {formatNumber(totalValue)}
-            </p>
-            <p className="text-muted-foreground flex items-center gap-1 text-[11px]">
-              <TrendingUp className="size-3 text-emerald-400" /> +8,4 % cette semaine
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card/60 py-3">
-          <CardContent className="space-y-1">
-            <p className="text-muted-foreground text-[11px] tracking-wide uppercase">Doublons</p>
-            <p className="font-display text-2xl font-bold tabular-nums">{duplicates.length}</p>
-            <p className="text-muted-foreground text-[11px]">conservés pour la fusion</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card/60 py-3">
-          <CardContent className="space-y-1">
-            <p className="text-muted-foreground text-[11px] tracking-wide uppercase">Niveau</p>
-            <p className="font-display text-2xl font-bold tabular-nums">{profile.level}</p>
-            <p className="text-muted-foreground text-[11px]">{formatNumber(profile.xp)} XP</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Synthèse compacte : une seule ligne, qui sert aussi de filtre */}
+      <div className="rounded-xl border bg-card/60 p-3">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-display text-xl font-bold tabular-nums">{completion}%</span>
+            <span className="text-muted-foreground text-[11px]">
+              {ownedCards.length} / {CARDS.length} fiches
+            </span>
+          </div>
 
-      <Card className="bg-card/60">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-sm">Répartition par rareté</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
+          <div className="order-3 w-full sm:order-none sm:flex-1">
+            <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+              {RARITIES.map((rarityItem) => {
+                const total = RARITY_COUNTS[rarityItem];
+                const owned = ownedCards.filter((card) => card.rarity === rarityItem).length;
+                const width = (total / CARDS.length) * 100;
+                const fill = total === 0 ? 0 : (owned / total) * 100;
+                return (
+                  <div key={rarityItem} className="relative" style={{ width: `${width}%` }}>
+                    <div
+                      className="absolute inset-0 opacity-20"
+                      style={{ backgroundColor: RARITY_MAP[rarityItem].accent }}
+                    />
+                    <div
+                      className="absolute inset-y-0 left-0"
+                      style={{ width: `${fill}%`, backgroundColor: RARITY_MAP[rarityItem].accent }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]">
+            <span className="flex items-center gap-1 tabular-nums">
+              <Coins className="size-3 text-[var(--gold)]" />
+              {formatNumber(totalValue)}
+            </span>
+            <span className="text-muted-foreground">
+              {plural(duplicates.length, "doublon", "doublons")}
+            </span>
+            <span className="text-muted-foreground tabular-nums">
+              Niv. {profile.level} · {formatNumber(profile.xp)} XP
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t pt-2">
           {RARITIES.map((rarityItem) => {
             const total = RARITY_COUNTS[rarityItem];
             const owned = ownedCards.filter((card) => card.rarity === rarityItem).length;
-            const percent = total === 0 ? 0 : Math.round((owned / total) * 100);
+            const active = rarity === rarityItem;
             return (
-              <div key={rarityItem} className="flex items-center gap-3">
-                <RarityBadge rarity={rarityItem} className="w-16 justify-center" />
-                <Progress
-                  value={percent}
-                  className="h-1.5 flex-1"
-                  indicatorStyle={{ backgroundColor: RARITY_MAP[rarityItem].accent }}
+              <button
+                key={rarityItem}
+                type="button"
+                onClick={() => setRarity(active ? null : rarityItem)}
+                className={cn(
+                  "flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] tabular-nums transition-colors",
+                  active ? "bg-accent text-accent-foreground" : "hover:bg-accent/40",
+                )}
+              >
+                <span
+                  className="size-1.5 rounded-full"
+                  style={{ backgroundColor: RARITY_MAP[rarityItem].accent }}
                 />
-                <span className="text-muted-foreground w-20 text-right text-xs tabular-nums">
+                <span className="text-muted-foreground">{RARITY_MAP[rarityItem].short}</span>
+                <span className="font-medium">
                   {owned}/{total}
                 </span>
-              </div>
+              </button>
             );
           })}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Barre d'outils */}
       <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
@@ -234,28 +258,6 @@ export function CollectionPage() {
             </button>
           )}
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => setRarity(null)}
-          className={cn(
-            "rounded-full border px-2 py-0.5 text-[10px]",
-            rarity === null ? "border-primary/40 bg-primary/15 text-primary" : "text-muted-foreground",
-          )}
-        >
-          Toutes raretés
-        </button>
-        {RARITIES.map((item) => (
-          <button key={item} type="button" onClick={() => setRarity(rarity === item ? null : item)}>
-            <RarityBadge
-              rarity={item}
-              withLabel
-              className={cn("cursor-pointer", rarity === item ? "opacity-100" : "opacity-60")}
-            />
-          </button>
-        ))}
       </div>
 
       {/* Grille */}
