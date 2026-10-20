@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Check, Coins } from "lucide-react";
 import { WikiPhoto } from "@/components/wiki-photo";
 import { RarityBadge } from "@/components/rarity-badge";
@@ -17,10 +17,13 @@ export function CardTile({
   compact?: boolean;
 }) {
   const accent = RARITY_MAP[card.rarity].accent;
+  const location = useLocation();
 
   return (
     <Link
       to={`/carte/${card.slug}`}
+      // Mémorise la page en cours : la fiche s'ouvrira en fenêtre par-dessus.
+      state={{ backgroundLocation: location }}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-all duration-300",
         "hover:-translate-y-1 hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.85)] focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",

@@ -24,7 +24,8 @@ export type WikiSummary = {
 
 const STORE_KEY = "wikitcg:wiki:v1";
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
-const NEGATIVE_TTL_MS = 24 * 60 * 60 * 1000;
+/** Un échec n'est retenu que 10 minutes : le joueur peut réessayer rapidement. */
+const NEGATIVE_TTL_MS = 10 * 60 * 1000;
 const MAX_CONCURRENT = 2;
 const TIMEOUT_MS = 7000;
 
@@ -99,6 +100,13 @@ export function peekSummary(title: string): WikiSummary | null | undefined {
   const ttl = entry.data ? TTL_MS : NEGATIVE_TTL_MS;
   if (Date.now() - entry.at > ttl) return undefined;
   return entry.data;
+}
+
+/** Oublie une entrée du cache, pour forcer un nouvel essai. */
+export function forgetSummary(title: string) {
+  loadStore();
+  memory.delete(cacheKey(title));
+  persist();
 }
 
 /**

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, type Location } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
 import { PublicShell } from "@/components/layout/public-shell";
 import { RequireAuth } from "@/components/require-auth";
@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HomePage } from "@/pages/home";
 import { ExplorePage } from "@/pages/explore";
-import { CardDetailPage } from "@/pages/card-detail";
+import { CardDetailModal, CardDetailPage } from "@/pages/card-detail";
 import { CollectionPage } from "@/pages/collection";
 import { SeriesPage } from "@/pages/series";
 import { SeriesDetailPage } from "@/pages/series-detail";
@@ -20,12 +20,59 @@ import { RulesPage } from "@/pages/rules";
 import { AuthPage } from "@/pages/auth";
 import { NotFoundPage } from "@/pages/not-found";
 
-function ScrollToTop() {
+type BackgroundState = { backgroundLocation?: Location } | null;
+
+function ScrollToTop({ enabled }: { enabled: boolean }) {
   const { pathname } = useLocation();
   React.useEffect(() => {
+    if (!enabled) return;
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [pathname]);
+  }, [pathname, enabled]);
   return null;
+}
+
+function AppRoutes() {
+  const location = useLocation();
+  const background = (location.state as BackgroundState)?.backgroundLocation;
+
+  return (
+    <>
+      {/* Quand une fiche est ouverte en fenêtre, la page d'origine reste affichée dessous. */}
+      <ScrollToTop enabled={!background} />
+      <Routes location={background ?? location}>
+        {/* Public : on peut regarder sans compte. */}
+        <Route element={<PublicShell />}>
+          <Route index element={<HomePage />} />
+          <Route path="/explorer" element={<ExplorePage />} />
+          <Route path="/carte/:slug" element={<CardDetailPage />} />
+          <Route path="/regles" element={<RulesPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+
+        <Route path="/connexion" element={<AuthPage mode="login" />} />
+        <Route path="/inscription" element={<AuthPage mode="signup" />} />
+
+        {/* Privé : accessible une fois connecté. */}
+        <Route element={<RequireAuth />}>
+          <Route element={<AppShell />}>
+            <Route path="/collection" element={<CollectionPage />} />
+            <Route path="/series" element={<SeriesPage />} />
+            <Route path="/serie/:slug" element={<SeriesDetailPage />} />
+            <Route path="/paquets" element={<PacksPage />} />
+            <Route path="/duels" element={<DuelPage />} />
+            <Route path="/classement" element={<LeaderboardPage />} />
+            <Route path="/profil" element={<ProfilePage />} />
+          </Route>
+        </Route>
+      </Routes>
+
+      {background && (
+        <Routes>
+          <Route path="/carte/:slug" element={<CardDetailModal />} />
+        </Routes>
+      )}
+    </>
+  );
 }
 
 export function App() {
@@ -33,33 +80,7 @@ export function App() {
     <GameProvider>
       <TooltipProvider>
         <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            {/* Public : on peut regarder sans compte. */}
-            <Route element={<PublicShell />}>
-              <Route index element={<HomePage />} />
-              <Route path="/explorer" element={<ExplorePage />} />
-              <Route path="/carte/:slug" element={<CardDetailPage />} />
-              <Route path="/regles" element={<RulesPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-
-            <Route path="/connexion" element={<AuthPage mode="login" />} />
-            <Route path="/inscription" element={<AuthPage mode="signup" />} />
-
-            {/* Privé : accessible une fois connecté. */}
-            <Route element={<RequireAuth />}>
-              <Route element={<AppShell />}>
-                <Route path="/collection" element={<CollectionPage />} />
-                <Route path="/series" element={<SeriesPage />} />
-                <Route path="/serie/:slug" element={<SeriesDetailPage />} />
-                <Route path="/paquets" element={<PacksPage />} />
-                <Route path="/duels" element={<DuelPage />} />
-                <Route path="/classement" element={<LeaderboardPage />} />
-                <Route path="/profil" element={<ProfilePage />} />
-              </Route>
-            </Route>
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
         <Toaster />
       </TooltipProvider>
