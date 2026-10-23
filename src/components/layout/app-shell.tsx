@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
+  Compass,
   Flame,
   LayoutGrid,
   Menu,
@@ -30,6 +31,7 @@ const NAV = [
       { to: "/paquets", label: "Paquets", icon: Package },
       { to: "/duels", label: "Duels", icon: Swords },
       { to: "/collection", label: "Ma collection", icon: LayoutGrid },
+      { to: "/parcours", label: "Parcours", icon: Compass },
     ],
   },
   {

@@ -212,4 +212,39 @@
   .backface-hidden {
     backface-visibility: hidden;
   }
+
+  /* Premium Card Effects */
+  @keyframes card-shine {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  @keyframes card-hover-lift {
+    0%,
+    100% {
+      transform: translateY(0) rotateZ(0deg);
+    }
+    50% {
+      transform: translateY(-2px) rotateZ(-0.5deg);
+    }
+  }
+
+  .card-shimmer {
+    background: linear-gradient(
+      135deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 20%,
+      transparent 40%
+    );
+    background-size: 1000px 1000px;
+    animation: card-shine 1.5s ease-in-out forwards;
+  }
+
+  .group:hover .card-shimmer {
+    animation: card-shine 0.8s ease-in-out;
+  }
 }

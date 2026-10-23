@@ -5,6 +5,7 @@ import { useGame } from "@/lib/game-store";
 import { RarityBadge } from "@/components/rarity-badge";
 import { RARITY_MAP, type Card } from "@/lib/types";
 import { cn, formatNumber } from "@/lib/utils";
+import { getCardShadow, getCardNumberOpacity } from "@/lib/card-styles";
 
 export function CardTile({
   card,
@@ -28,17 +29,26 @@ export function CardTile({
       state={{ backgroundLocation: location }}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-all duration-300",
-        "hover:-translate-y-1 hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.85)] focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+        "hover:-translate-y-1 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
         className,
       )}
       style={{
-        borderColor: `color-mix(in oklch, ${accent} 32%, var(--border))`,
+        borderColor: `color-mix(in oklch, ${accent} 45%, var(--border))`,
+        boxShadow: getCardShadow(card.rarity),
       }}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background: `radial-gradient(120% 80% at 50% 0%, color-mix(in oklch, ${accent} 16%, transparent), transparent 70%)`,
+        }}
+      />
+      {/* Foil shimmer effect au hover */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 card-shimmer"
+        style={{
+          background: `linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 20%, transparent 40%)`,
+          backgroundSize: "1000px 1000px",
         }}
       />
 
@@ -55,11 +65,14 @@ export function CardTile({
         </div>
         <div className="absolute top-2 right-2">
           {owned ? (
-            <span className="bg-emerald-500/20 text-emerald-300 ring-emerald-500/40 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 backdrop-blur-sm">
+            <span className="bg-emerald-500/25 text-emerald-200 ring-emerald-500/50 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1.5 backdrop-blur-sm">
               <Check className="size-3" /> Possédée
             </span>
           ) : (
-            <span className="rounded-full bg-black/35 px-2 py-0.5 text-[10px] font-medium text-white/75 backdrop-blur-sm">
+            <span className={cn(
+              "rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-medium text-white/80 backdrop-blur-sm border border-white/10 font-mono tracking-wider",
+              getCardNumberOpacity(card.rarity)
+            )}>
               {card.number}
             </span>
           )}
@@ -81,14 +94,17 @@ export function CardTile({
         </h3>
         <p className="text-muted-foreground line-clamp-2 text-xs leading-snug">{card.blurb}</p>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="text-muted-foreground flex items-center gap-1 text-xs font-medium tabular-nums">
-            <Coins className="size-3.5 text-[var(--gold)]" />
-            {formatNumber(card.value)}
-          </span>
-          <span className="text-muted-foreground/80 text-[10px] font-medium">
-            SAV {card.stats.savoir} · INF {card.stats.influence}
-          </span>
+        <div className="mt-auto flex flex-col gap-2">
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground flex items-center gap-1 text-xs font-medium tabular-nums">
+              <Coins className="size-3.5 text-[var(--gold)]" />
+              {formatNumber(card.value)}
+            </span>
+            <span className="text-muted-foreground/80 text-[10px] font-medium">
+              SAV {card.stats.savoir} · INF {card.stats.influence}
+            </span>
+          </div>
         </div>
       </div>
     </Link>

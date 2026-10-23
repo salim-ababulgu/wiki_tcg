@@ -96,6 +96,19 @@ export function CardArt({
             strokeWidth="1"
           />
         ))}
+        {/* Diagonal grid texture */}
+        {Array.from({ length: 6 }).map((_, i) => (
+          <line
+            key={`diag-${i}`}
+            x1={i * 35 - 20}
+            y1={-20}
+            x2={i * 35 + 280}
+            y2={280}
+            stroke="white"
+            strokeOpacity="0.04"
+            strokeWidth="0.5"
+          />
+        ))}
       </svg>
 
       {showGlyph && (
@@ -107,12 +120,17 @@ export function CardArt({
         </div>
       )}
 
-      <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay" />
+      <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.15] mix-blend-overlay" />
+      {/* Top accent bar */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
+        className="pointer-events-none absolute inset-x-0 top-0 h-1 opacity-60"
         style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/25" />
+      {/* Vignette effect */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
+      <div className="pointer-events-none absolute inset-0 bg-radial opacity-30" style={{
+        backgroundImage: `radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%)`
+      }} />
     </div>
   );
 }

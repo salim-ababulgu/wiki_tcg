@@ -67,6 +67,30 @@ En français, sans accents, en minuscules, avec des tirets si nécessaire
 (exemples : `/paquets`, `/collection`, `/series`, `/carte/grande-vague`).
 Pas d'adresses en anglais.
 
+## Catalogue : deux couches, et un filtre
+
+Le catalogue (1 696 cartes après nettoyage) est fait de deux couches :
+
+1. **Le noyau curaté** (`scripts/add-curated.mjs`) — environ 80 articles choisis à la main,
+   regroupés en **parcours** thématiques. C'est le cœur éditorial, notre différence.
+2. **Le corpus populaire** (`scripts/generate-catalog-bulk.mjs`) — les articles les plus
+   consultés sur douze mois, qui apportent le volume et la rareté mesurée.
+
+**Filtre obligatoire** (`scripts/filter-catalog.mjs`, rapport dans
+`docs/catalogue-filtre.md`) : on écarte les pages pour adultes, les faits divers, les
+homonymies, l'actualité (cérémonies, saisons de séries), les titres purement numériques et
+les cartes sans image. Toute nouvelle génération doit repasser par ce filtre.
+
+## Les parcours
+
+Six parcours remplacent les séries supprimées : `vivant`, `batisseurs`, `images`,
+`matiere`, `recits`, `machines`. Un parcours n'est pas un thème : c'est une quinzaine de
+fiches choisies pour raconter quelque chose. Les fiches non trouvées restent visibles mais
+verrouillées.
+
+**Les titres des parcours sont éditoriaux** : ne pas les remplacer par des catégories
+automatiques sans accord.
+
 ## Modèle économique (validé)
 
 - Un paquet **gratuit toutes les 10 minutes**, avec une **réserve plafonnée à 10**.

@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HomePage } from "@/pages/home";
 import { ExplorePage } from "@/pages/explore";
+import { ParcoursPage, ParcoursDetailPage } from "@/pages/parcours";
 import { CardDetailModal, CardDetailPage } from "@/pages/card-detail";
 import { CollectionPage } from "@/pages/collection";
 import { PacksPage } from "@/pages/packs";
@@ -57,6 +58,8 @@ function AppRoutes() {
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
             <Route path="/collection" element={<CollectionPage />} />
+            <Route path="/parcours" element={<ParcoursPage />} />
+            <Route path="/parcours/:key" element={<ParcoursDetailPage />} />
             <Route path="/paquets" element={<PacksPage />} />
             <Route path="/duels" element={<DuelPage />} />
             <Route path="/classement" element={<LeaderboardPage />} />
