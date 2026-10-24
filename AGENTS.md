@@ -25,9 +25,9 @@ Conséquences pour le design et les textes :
 
 ## Priorités, dans cet ordre
 
-1. La boucle principale : paquet → collection.
-2. Ce qui la soutient : mise en avant des cartes rares, historique des ouvertures.
-3. Plus tard : fusion des doublons, duels, échanges et place de marché, guildes.
+1. La boucle principale : paquet → collection → parcours.
+2. Ce qui la soutient : fusion des doublons, mise en avant des cartes rares, historique.
+3. Plus tard : duels, échanges et place de marché, guildes.
 
 **Les séries ont été supprimées** (décision du 21 octobre) : trop limitantes, chaque
 nouvel article aurait dû entrer dans un thème choisi à la main.
@@ -38,8 +38,8 @@ L'API Wikipédia est branchée (photo + résumé des fiches), voir « Sources ex
 ## Où en est le projet
 
 Prototype local, sans serveur : Vite, React 19, TypeScript, Tailwind v4, shadcn/ui.
-Catalogue de **1 981 cartes** : 1 941 générées à partir des articles Wikipédia les plus
-consultés (scripts/generate-catalog-bulk.mjs), plus 43 fiches éditoriales écrites pour le projet.
+Catalogue de **1 719 cartes** : un noyau curaté (80 articles choisis), un corpus populaire
+filtré (articles les plus consultés), et 43 fiches éditoriales écrites pour le projet.
 La rareté y est mesurée sur les vues, pas inventée. Aucun compte réel, aucune donnée
 enregistrée ailleurs que dans le navigateur. Versionné sur Git, branche `main`.
 
