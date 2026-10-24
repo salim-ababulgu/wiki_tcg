@@ -157,35 +157,37 @@ export function ExplorePage() {
 
           <div className="space-y-2.5">
             <p className="text-xs font-semibold tracking-wide uppercase">Rareté</p>
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-2">
               {RARITIES.map((rarity) => {
                 const info = RARITY_MAP[rarity];
                 const active = selectedRarities.includes(rarity);
+                const count = CARDS.filter((card) => card.rarity === rarity).length;
                 return (
                   <button
                     key={rarity}
                     type="button"
                     onClick={() => toggleRarity(rarity)}
                     className={cn(
-                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
-                      active ? "bg-accent text-accent-foreground" : "hover:bg-accent/40",
+                      "group relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all",
+                      "border border-current",
+                      active
+                        ? "text-white"
+                        : "hover:opacity-80"
                     )}
+                    style={{
+                      color: info.accent,
+                      borderColor: active
+                        ? info.accent
+                        : `color-mix(in oklch, ${info.accent} 40%, transparent)`,
+                      backgroundColor: active
+                        ? `color-mix(in oklch, ${info.accent} 28%, transparent)`
+                        : `color-mix(in oklch, ${info.accent} 8%, transparent)`,
+                    }}
                   >
-                    <span
-                      className="grid size-5 place-items-center rounded border text-[9px] font-bold"
-                      style={{
-                        borderColor: `color-mix(in oklch, ${info.accent} 50%, transparent)`,
-                        color: info.accent,
-                        backgroundColor: active
-                          ? `color-mix(in oklch, ${info.accent} 18%, transparent)`
-                          : "transparent",
-                      }}
-                    >
-                      {active ? <Check className="size-3" /> : info.short}
-                    </span>
-                    <span className="flex-1 text-left">{info.label}</span>
-                    <span className="text-muted-foreground text-[11px] tabular-nums">
-                      {CARDS.filter((card) => card.rarity === rarity).length}
+                    <span>{info.short}</span>
+                    {active && <Check className="size-3" />}
+                    <span className="text-[10px] opacity-70 hidden sm:inline">
+                      {count}
                     </span>
                   </button>
                 );

@@ -60,17 +60,17 @@ function CardDetailBody({ card }: { card: CardType }) {
   const trend = ((history[history.length - 1] - history[0]) / history[0]) * 100;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[320px_1fr] xl:grid-cols-[360px_1fr]">
+    <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
       {/* Colonne carte */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div
           className="card-shine overflow-hidden rounded-2xl border bg-card shadow-[0_30px_70px_-30px_rgba(0,0,0,0.9)]"
-          style={{ borderColor: `color-mix(in oklch, ${info.accent} 40%, var(--border))` }}
+          style={{ borderColor: `color-mix(in oklch, ${info.accent} 45%, var(--border))` }}
         >
           <WikiPhoto
             card={card}
-            className="h-56 sm:h-64"
-            glyphClassName="size-24"
+            className="h-72 sm:h-80"
+            glyphClassName="size-28"
             lazy={false}
             blurred={card.sensitive && (minor || streamer)}
             revealable={!minor}
@@ -181,7 +181,7 @@ function CardDetailBody({ card }: { card: CardType }) {
       </div>
 
       {/* Colonne détails */}
-      <div className="space-y-4">
+      <div className="space-y-6 lg:sticky lg:top-4 lg:self-start">
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <Card className="bg-card/60 py-3">
             <CardContent className="space-y-0.5 px-3">

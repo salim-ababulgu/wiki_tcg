@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Check, Coins } from "lucide-react";
 import { WikiPhoto } from "@/components/wiki-photo";
+import { CardPreviewPopup } from "@/components/card-preview-popup";
 import { useGame } from "@/lib/game-store";
 import { RarityBadge } from "@/components/rarity-badge";
 import { RARITY_MAP, type Card } from "@/lib/types";
@@ -107,6 +108,9 @@ export function CardTile({
           </div>
         </div>
       </div>
+
+      {/* Popup preview au hover */}
+      <CardPreviewPopup card={card} />
     </Link>
   );
 }

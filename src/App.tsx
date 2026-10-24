@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { HomePage } from "@/pages/home";
 import { ExplorePage } from "@/pages/explore";
 import { ParcoursPage, ParcoursDetailPage } from "@/pages/parcours";
+import { FusionPage } from "@/pages/fusion";
 import { CardDetailModal, CardDetailPage } from "@/pages/card-detail";
 import { CollectionPage } from "@/pages/collection";
 import { PacksPage } from "@/pages/packs";
@@ -59,6 +60,7 @@ function AppRoutes() {
           <Route element={<AppShell />}>
             <Route path="/collection" element={<CollectionPage />} />
             <Route path="/parcours" element={<ParcoursPage />} />
+            <Route path="/fusion" element={<FusionPage />} />
             <Route path="/parcours/:key" element={<ParcoursDetailPage />} />
             <Route path="/paquets" element={<PacksPage />} />
             <Route path="/duels" element={<DuelPage />} />

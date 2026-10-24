@@ -69,7 +69,7 @@ Pas d'adresses en anglais.
 
 ## Catalogue : deux couches, et un filtre
 
-Le catalogue (1 696 cartes après nettoyage) est fait de deux couches :
+Le catalogue (**1 719 cartes** après nettoyage et fusion des deux couches) est fait de deux couches :
 
 1. **Le noyau curaté** (`scripts/add-curated.mjs`) — environ 80 articles choisis à la main,
    regroupés en **parcours** thématiques. C'est le cœur éditorial, notre différence.
@@ -103,9 +103,10 @@ automatiques sans accord.
 - Les WikiCrédits servent à autre chose (achat de fiches à l'unité), et **ne servent pas** à
   ouvrir des paquets.
 - **Aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
-- **Doublons : on ne recycle pas** (décision du 21 octobre). Un exemplaire en double s'ajoute et
-  se compte, sans conversion. Il est conservé en vue d'une **fusion** — plusieurs exemplaires
-  pour obtenir une carte supérieure — qui n'est pas encore définie et ne doit pas être inventée.
+- **Doublons : pas de recyclage en monnaie.** Ils servent à la **fusion** (écran `/fusion`) :
+  2 doublons + la carte d'origine donnent une carte du **rang supérieur**, tirée au hasard dans
+  ce rang. La première carte est **toujours conservée** : la progression de l'album ne baisse
+  jamais. Le rang légendaire ne se fusionne pas. La fusion est gratuite.
 
 ## Sources externes
 

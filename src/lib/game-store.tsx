@@ -1,15 +1,21 @@
 import * as React from "react";
 import { CARDS, drawCard } from "@/data/cards";
 import type { Card, OwnedCard, Profile } from "@/lib/types";
-import { RARITY_MAP } from "@/lib/types";
+import { RARITIES, RARITY_MAP } from "@/lib/types";
 import { FREE_INTERVAL_MS, consume, refill, type PackTimer } from "@/lib/pack-timer";
 
 const STORAGE_KEY = "wikitcg:state:v1";
 
 export const PACK_SIZE = 5;
+/** Nombre de doublons sacrifiés pour une fusion (la dernière carte est toujours conservée). */
+export const FUSION_COST = 2;
 export { PACK_RESERVE_MAX, FREE_INTERVAL_MS } from "@/lib/pack-timer";
 /** Rythme de l'abonnement « temps ». */
 export const PRO_INTERVAL_MS = 3 * 60 * 1000;
+
+export type FusionResult =
+  | { ok: true; card: Card; consumed: number }
+  | { ok: false; reason: "manque" | "rang-max" };
 
 type GameState = {
   /** Y a-t-il quelqu'un de connecté ? Simulé : aucun mot de passe, aucun serveur. */
@@ -35,6 +41,8 @@ type GameContextValue = GameState & {
   owns: (cardId: string) => boolean;
   /** Ouvre un paquet gratuit. Renvoie null si la réserve est vide. */
   openPack: () => Card[] | null;
+  /** Fusionne des doublons : on ne touche jamais à la dernière carte. */
+  fuse: (cardId: string) => FusionResult;
   addCard: (card: Card, edition?: OwnedCard["edition"]) => void;
   buyCard: (card: Card) => boolean;
   toggleWishlist: (cardId: string) => void;
@@ -268,6 +276,59 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return drawn;
   }, []);
 
+  const fuse = React.useCallback((cardId: string): FusionResult => {
+    let result: FusionResult = { ok: false, reason: "manque" };
+
+    setState((prev) => {
+      const copies = prev.collection.filter((owned) => owned.cardId === cardId);
+      const card = CARDS.find((item) => item.id === cardId);
+      const extras = copies.length - 1; // la première carte est intouchable
+
+      if (!card || extras < FUSION_COST) {
+        result = { ok: false, reason: "manque" };
+        return prev;
+      }
+
+      const tierIndex = RARITIES.indexOf(card.rarity);
+      const nextTier = RARITIES[tierIndex + 1];
+      if (!nextTier) {
+        result = { ok: false, reason: "rang-max" };
+        return prev;
+      }
+
+      const pool = CARDS.filter((item) => item.rarity === nextTier);
+      if (pool.length === 0) {
+        result = { ok: false, reason: "rang-max" };
+        return prev;
+      }
+      const gained = pool[Math.floor(Math.random() * pool.length)];
+
+      // On sacrifie les doublons les plus récents, en gardant la première carte.
+      const keep = new Set(copies.slice(0, copies.length - FUSION_COST).map((owned) => owned.id));
+      const collection = prev.collection.filter(
+        (owned) => owned.cardId !== cardId || keep.has(owned.id),
+      );
+
+      result = { ok: true, card: gained, consumed: FUSION_COST };
+
+      return {
+        ...prev,
+        collection: [
+          ...collection,
+          {
+            id: `own_${gained.id}_${Date.now()}_fuse`,
+            cardId: gained.id,
+            obtainedAt: new Date().toISOString(),
+            edition: "standard",
+          },
+        ],
+        profile: { ...prev.profile, xp: prev.profile.xp + 60 },
+      };
+    });
+
+    return result;
+  }, []);
+
   const buyCard = React.useCallback((card: Card): boolean => {
     let success = false;
     setState((prev) => {
@@ -355,6 +416,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     ownedIds,
     owns: (cardId) => state.signedIn && ownedIds.has(cardId),
     openPack,
+    fuse,
     addCard,
     buyCard,
     toggleWishlist,
