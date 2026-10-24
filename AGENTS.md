@@ -103,10 +103,13 @@ automatiques sans accord.
 - Les WikiCrédits servent à autre chose (achat de fiches à l'unité), et **ne servent pas** à
   ouvrir des paquets.
 - **Aucune conversion inverse** : des WikiCrédits ne se revendent jamais contre de l'argent.
-- **Doublons : pas de recyclage en monnaie.** Ils servent à la **fusion** (écran `/fusion`) :
-  2 doublons + la carte d'origine donnent une carte du **rang supérieur**, tirée au hasard dans
-  ce rang. La première carte est **toujours conservée** : la progression de l'album ne baisse
-  jamais. Le rang légendaire ne se fusionne pas. La fusion est gratuite.
+- **Doublons : pas de recyclage en monnaie.** Ils servent à la **fusion** (écran `/fusion`), avec
+  deux recettes : **2 doublons d'une même carte** + la carte d'origine, ou **3 doublons d'une
+  même rareté** (n'importe quelles fiches). Les deux donnent une carte du **rang supérieur**,
+  tirée au hasard dans ce rang. La première carte de chaque fiche est **toujours conservée** :
+  la progression de l'album ne baisse jamais. Le rang légendaire ne se fusionne pas. La fusion
+  est gratuite, et elle est **mise en scène** (convergence, éclat, apparition) : une mécanique
+  invisible ne se comprend pas.
 
 ## Sources externes
 

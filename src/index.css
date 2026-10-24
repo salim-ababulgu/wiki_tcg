@@ -248,3 +248,88 @@
     animation: card-shine 0.8s ease-in-out;
   }
 }
+
+/* ——— Fusion : convergence, éclat, apparition ——— */
+@keyframes fuse-converge {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  60% {
+    transform: translateY(-18px) scale(0.9) rotate(2deg);
+    opacity: 1;
+    filter: brightness(1.35);
+  }
+  100% {
+    transform: translateY(0) scale(0.12) rotate(-6deg);
+    opacity: 0;
+    filter: brightness(2.2);
+  }
+}
+
+@keyframes fuse-burst {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes fuse-arrive {
+  0% {
+    transform: rotateY(90deg) scale(0.7);
+    opacity: 0;
+  }
+  70% {
+    transform: rotateY(0deg) scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fuse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 26px -6px color-mix(in oklch, var(--gold) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 48px 4px color-mix(in oklch, var(--gold) 70%, transparent);
+  }
+}
+
+.animate-fuse-converge {
+  animation: fuse-converge 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-fuse-burst {
+  animation: fuse-burst 0.9s ease-out forwards;
+}
+
+.animate-fuse-arrive {
+  animation: fuse-arrive 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fuse-glow {
+  animation: fuse-glow 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fuse-converge,
+  .animate-fuse-burst,
+  .animate-fuse-arrive,
+  .animate-fuse-glow {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -13,8 +13,12 @@ export { PACK_RESERVE_MAX, FREE_INTERVAL_MS } from "@/lib/pack-timer";
 /** Rythme de l'abonnement « temps ». */
 export const PRO_INTERVAL_MS = 3 * 60 * 1000;
 
+export type FusionInput =
+  | { mode: "doublons"; cardId: string }
+  | { mode: "rarete"; rarity: Card["rarity"] };
+
 export type FusionResult =
-  | { ok: true; card: Card; consumed: number }
+  | { ok: true; card: Card; consumed: Card[] }
   | { ok: false; reason: "manque" | "rang-max" };
 
 type GameState = {
@@ -42,7 +46,7 @@ type GameContextValue = GameState & {
   /** Ouvre un paquet gratuit. Renvoie null si la réserve est vide. */
   openPack: () => Card[] | null;
   /** Fusionne des doublons : on ne touche jamais à la dernière carte. */
-  fuse: (cardId: string) => FusionResult;
+  fuse: (input: FusionInput) => FusionResult;
   addCard: (card: Card, edition?: OwnedCard["edition"]) => void;
   buyCard: (card: Card) => boolean;
   toggleWishlist: (cardId: string) => void;
@@ -276,21 +280,58 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return drawn;
   }, []);
 
-  const fuse = React.useCallback((cardId: string): FusionResult => {
+  /**
+   * Deux façons de fusionner, et une seule règle : on ne sacrifie que des doublons.
+   * La première carte de chaque fiche reste toujours dans la collection.
+   */
+  const fuse = React.useCallback((input: FusionInput): FusionResult => {
     let result: FusionResult = { ok: false, reason: "manque" };
 
     setState((prev) => {
-      const copies = prev.collection.filter((owned) => owned.cardId === cardId);
-      const card = CARDS.find((item) => item.id === cardId);
-      const extras = copies.length - 1; // la première carte est intouchable
-
-      if (!card || extras < FUSION_COST) {
-        result = { ok: false, reason: "manque" };
-        return prev;
+      // On regroupe par fiche, pour repérer les exemplaires sacrifiables.
+      const byCard = new Map<string, typeof prev.collection>();
+      for (const owned of prev.collection) {
+        const list = byCard.get(owned.cardId) ?? [];
+        list.push(owned);
+        byCard.set(owned.cardId, list);
       }
 
-      const tierIndex = RARITIES.indexOf(card.rarity);
-      const nextTier = RARITIES[tierIndex + 1];
+      const extrasOf = (cardId: string) => {
+        const list = byCard.get(cardId) ?? [];
+        // Le premier exemplaire de chaque fiche est intouchable.
+        return list.slice(1);
+      };
+
+      let sacrifices: typeof prev.collection = [];
+      let sourceRarity: Card["rarity"] | null = null;
+
+      if (input.mode === "doublons") {
+        const card = CARDS.find((item) => item.id === input.cardId);
+        if (!card) return prev;
+        const extras = extrasOf(card.id);
+        if (extras.length < FUSION_COST) {
+          result = { ok: false, reason: "manque" };
+          return prev;
+        }
+        sacrifices = extras.slice(0, FUSION_COST);
+        sourceRarity = card.rarity;
+      } else {
+        // Toutes les cartes en double de cette rareté sont éligibles.
+        const eligible: typeof prev.collection = [];
+        for (const [cardId, list] of byCard) {
+          const card = CARDS.find((item) => item.id === cardId);
+          if (!card || card.rarity !== input.rarity) continue;
+          eligible.push(...list.slice(1));
+        }
+        if (eligible.length < FUSION_COST + 1) {
+          result = { ok: false, reason: "manque" };
+          return prev;
+        }
+        sacrifices = eligible.slice(0, FUSION_COST + 1);
+        sourceRarity = input.rarity;
+      }
+
+      const nextTier = RARITIES[RARITIES.indexOf(sourceRarity) + 1];
       if (!nextTier) {
         result = { ok: false, reason: "rang-max" };
         return prev;
@@ -303,18 +344,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       const gained = pool[Math.floor(Math.random() * pool.length)];
 
-      // On sacrifie les doublons les plus récents, en gardant la première carte.
-      const keep = new Set(copies.slice(0, copies.length - FUSION_COST).map((owned) => owned.id));
-      const collection = prev.collection.filter(
-        (owned) => owned.cardId !== cardId || keep.has(owned.id),
-      );
+      const burned = new Set(sacrifices.map((owned) => owned.id));
+      const consumedCards = sacrifices
+        .map((owned) => CARDS.find((item) => item.id === owned.cardId))
+        .filter((item): item is Card => Boolean(item));
 
-      result = { ok: true, card: gained, consumed: FUSION_COST };
+      result = { ok: true, card: gained, consumed: consumedCards };
 
       return {
         ...prev,
         collection: [
-          ...collection,
+          ...prev.collection.filter((owned) => !burned.has(owned.id)),
           {
             id: `own_${gained.id}_${Date.now()}_fuse`,
             cardId: gained.id,
